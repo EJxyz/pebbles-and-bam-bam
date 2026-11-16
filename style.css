@@ -198,6 +198,92 @@ html, body {
 
 .map-subtitle { margin-top: 10vmin; }
 
+/* ---------- Grown-ups button + modal ---------- */
+.grownups-button {
+  font-size: clamp(1.3rem, 5vmin, 2rem);
+  background: #fff;
+  border: 0.4vmin solid #ccc;
+  border-radius: 50%;
+  width: 11vmin; height: 11vmin;
+  max-width: 54px; max-height: 54px;
+  cursor: pointer;
+  box-shadow: 0 0.5vmin 0 rgba(0,0,0,0.1);
+  opacity: 0.85;
+}
+.grownups-button:active { transform: translateY(0.4vmin); }
+
+.modal {
+  position: fixed;
+  inset: 0;
+  z-index: 70;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  background: rgba(45, 49, 66, 0.6);
+  backdrop-filter: blur(2px);
+  padding: 4vmin;
+}
+.modal.show { display: flex; }
+
+.modal-box {
+  position: relative;
+  background: #fff;
+  border-radius: 6vmin;
+  padding: 7vmin 6vmin 6vmin;
+  max-width: 460px;
+  width: 100%;
+  text-align: center;
+  box-shadow: 0 2vmin 0 rgba(0,0,0,0.2);
+  max-height: 90vh;
+  overflow-y: auto;
+}
+.modal-close {
+  position: absolute;
+  top: 2vmin; right: 2vmin;
+  font-size: clamp(1.1rem, 4vmin, 1.6rem);
+  background: #eee;
+  border: none;
+  border-radius: 50%;
+  width: 9vmin; height: 9vmin;
+  max-width: 44px; max-height: 44px;
+  cursor: pointer;
+}
+.modal-title {
+  font-size: clamp(1.5rem, 6vmin, 2.4rem);
+  color: var(--accent);
+  margin: 0 0 2vmin;
+}
+.modal-text { font-size: clamp(1.1rem, 4vmin, 1.5rem); margin: 1.5vmin 0; }
+.modal-hint { font-size: clamp(0.85rem, 3vmin, 1.05rem); color: #888; margin-top: 2vmin; }
+
+.gate-question {
+  font-size: clamp(2rem, 9vmin, 3.5rem);
+  font-weight: bold;
+  margin: 2vmin 0;
+}
+.gate-input {
+  font-family: inherit;
+  font-size: clamp(1.6rem, 7vmin, 2.6rem);
+  text-align: center;
+  width: 40vmin;
+  max-width: 180px;
+  padding: 2vmin;
+  border: 0.5vmin solid var(--accent2);
+  border-radius: 3vmin;
+  margin-bottom: 3vmin;
+}
+.gate-error { color: #e04848; font-weight: bold; margin-top: 2vmin; }
+
+.danger-button { background: #ff6b6b; }
+.confirm-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 2vmin;
+  justify-content: center;
+  margin-top: 2vmin;
+}
+.confirm-row .big-button { font-size: clamp(1.1rem, 4vmin, 1.6rem); padding: 2.5vmin 5vmin; }
+
 /* ---------- World map ---------- */
 .map {
   position: relative;

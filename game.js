@@ -15,8 +15,11 @@
       const raw = localStorage.getItem(SAVE_KEY);
       if (raw) return JSON.parse(raw);
     } catch (e) { /* ignore */ }
+    return defaultSave();
+  }
+  function defaultSave() {
     return {
-      avatar: null, // dataURL of the kid's photo
+      avatar: null, // dataURL of the kid's photo, or an emoji, or null
       stars: 0,
       levels: { counting: 1, colors: 1, shapes: 1, numbers: 1, animals: 1 },
       streak: { counting: 0, colors: 0, shapes: 0, numbers: 0, animals: 0 }
@@ -702,6 +705,97 @@
       goHome();
     });
   }
+
+  /* ===========================================================
+     GROWN-UPS AREA — child-locked reset / start over
+     =========================================================== */
+  (function setupGrownups() {
+    const openBtn   = document.getElementById("grownups-button");
+    const modal     = document.getElementById("grownups-modal");
+    const closeBtn  = document.getElementById("grownups-close");
+    const gate      = document.getElementById("grownups-gate");
+    const panel     = document.getElementById("grownups-panel");
+    const gateQ     = document.getElementById("gate-question");
+    const gateInput = document.getElementById("gate-answer");
+    const gateSubmit= document.getElementById("gate-submit");
+    const gateError = document.getElementById("gate-error");
+    const panelStars= document.getElementById("panel-stars");
+    const resetBtn  = document.getElementById("reset-button");
+    const resetConfirm = document.getElementById("reset-confirm");
+    const resetYes  = document.getElementById("reset-yes");
+    const resetNo   = document.getElementById("reset-no");
+
+    if (!openBtn || !modal) return;
+
+    let gateAnswer = 0;
+
+    function newGateQuestion() {
+      // A small two-number sum a grown-up can do, a toddler can't.
+      const a = 2 + Math.floor(Math.random() * 7); // 2..8
+      const b = 2 + Math.floor(Math.random() * 7); // 2..8
+      gateAnswer = a + b;
+      gateQ.textContent = a + " + " + b + " = ?";
+    }
+
+    function openModal() {
+      // Stop any narration and reset the modal to its locked state.
+      window.speechSynthesis && window.speechSynthesis.cancel();
+      gate.hidden = false;
+      panel.hidden = true;
+      resetConfirm.hidden = true;
+      gateError.hidden = true;
+      gateInput.value = "";
+      newGateQuestion();
+      modal.classList.add("show");
+      modal.setAttribute("aria-hidden", "false");
+      setTimeout(() => gateInput.focus(), 50);
+    }
+
+    function closeModal() {
+      modal.classList.remove("show");
+      modal.setAttribute("aria-hidden", "true");
+    }
+
+    function checkGate() {
+      if (parseInt(gateInput.value, 10) === gateAnswer) {
+        gateError.hidden = true;
+        gate.hidden = true;
+        panel.hidden = false;
+        panelStars.textContent = save.stars;
+      } else {
+        gateError.hidden = false;
+        gateInput.value = "";
+        newGateQuestion();
+      }
+    }
+
+    function doReset() {
+      // Wipe saved progress in place (save is a const) and clear storage.
+      const fresh = defaultSave();
+      Object.keys(fresh).forEach(k => { save[k] = fresh[k]; });
+      try { localStorage.removeItem(SAVE_KEY); } catch (e) {}
+      persist();
+      // Reset the avatar shown everywhere back to the default face.
+      applyAvatar(null);
+      document.querySelectorAll(".animal-choice.selected")
+        .forEach(b => b.classList.remove("selected"));
+      refreshHome();
+      closeModal();
+      // Send the child back to the very start.
+      show("screen-welcome");
+      speak("Let's make a new character!");
+    }
+
+    openBtn.addEventListener("click", openModal);
+    closeBtn.addEventListener("click", closeModal);
+    modal.addEventListener("click", (e) => { if (e.target === modal) closeModal(); });
+    gateSubmit.addEventListener("click", checkGate);
+    gateInput.addEventListener("keydown", (e) => { if (e.key === "Enter") checkGate(); });
+
+    resetBtn.addEventListener("click", () => { resetConfirm.hidden = false; });
+    resetNo.addEventListener("click", () => { resetConfirm.hidden = true; });
+    resetYes.addEventListener("click", doReset);
+  })();
 
   /* ---------- Boot ---------- */
   if (save.avatar) applyAvatar(save.avatar);

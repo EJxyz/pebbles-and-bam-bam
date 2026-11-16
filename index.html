@@ -41,6 +41,7 @@
       <div class="home-header">
         <div id="home-avatar" class="avatar-circle small"><span class="avatar-placeholder">🙂</span></div>
         <div class="star-bank">⭐ <span id="total-stars">0</span></div>
+        <button id="grownups-button" class="grownups-button" aria-label="Grown-ups">⚙️</button>
       </div>
 
       <p class="subtitle map-subtitle">Where do you want to go?</p>
@@ -75,6 +76,46 @@
 
       <div id="choices" class="choices"></div>
     </section>
+  </div>
+
+  <!-- ============ GROWN-UPS AREA (child-locked) ============ -->
+  <div id="grownups-modal" class="modal" aria-hidden="true">
+    <div class="modal-box">
+      <button id="grownups-close" class="modal-close" aria-label="Close">✕</button>
+
+      <!-- Step 1: simple math gate so kids can't get in -->
+      <div id="grownups-gate">
+        <h2 class="modal-title">For Grown-Ups</h2>
+        <p class="modal-text">To continue, answer this:</p>
+        <p id="gate-question" class="gate-question">3 + 4 = ?</p>
+        <input id="gate-answer" class="gate-input" type="number" inputmode="numeric"
+               autocomplete="off" aria-label="Answer" />
+        <button id="gate-submit" class="big-button go-button">OK</button>
+        <p id="gate-error" class="gate-error" hidden>Not quite — try again.</p>
+      </div>
+
+      <!-- Step 2: the actual controls -->
+      <div id="grownups-panel" hidden>
+        <h2 class="modal-title">Grown-Up Settings</h2>
+        <p class="modal-text">
+          Stars: <strong id="panel-stars">0</strong>
+        </p>
+        <button id="reset-button" class="big-button danger-button">🔄 Start Over</button>
+        <p class="modal-hint">
+          This clears all stars, levels, and the chosen character so your child
+          can start fresh.
+        </p>
+
+        <!-- Confirm step for the reset -->
+        <div id="reset-confirm" hidden>
+          <p class="modal-text"><strong>Start completely over?</strong></p>
+          <div class="confirm-row">
+            <button id="reset-yes" class="big-button danger-button">Yes, start over</button>
+            <button id="reset-no" class="big-button go-button">No, keep playing</button>
+          </div>
+        </div>
+      </div>
+    </div>
   </div>
 
   <script src="game.js"></script>
