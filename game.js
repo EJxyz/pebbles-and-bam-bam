@@ -177,11 +177,21 @@
     document.documentElement.lang = (save.lang === "es") ? "es" : "en";
   }
 
+  // Reflect the current language in every selector (flags + dropdown).
+  function syncLangControls() {
+    document.querySelectorAll("#lang-flags .lang-flag").forEach(b => {
+      b.classList.toggle("selected", b.getAttribute("data-lang") === save.lang);
+    });
+    const sel = document.getElementById("lang-select");
+    if (sel) sel.value = save.lang || "en";
+  }
+
   // Switch language: persist, update all static text, and re-render the map.
   function applyLanguage(lang) {
     save.lang = (lang === "es") ? "es" : "en";
     persist();
     applyStaticText();
+    syncLangControls();
     // Re-render the map so region titles / stop names update immediately.
     if (document.getElementById("screen-home").classList.contains("active")) {
       renderRegion(currentRegionIndex, false);
@@ -469,6 +479,18 @@
 
   buildEmojiPicker("animal-picker", AVATAR_ANIMALS, "pickedFriend");
   buildEmojiPicker("shape-picker", AVATAR_SHAPES, "pickedShape");
+
+  // Quick language flags on the welcome screen.
+  (function setupLangFlags() {
+    const flags = document.querySelectorAll("#lang-flags .lang-flag");
+    flags.forEach(btn => {
+      btn.addEventListener("click", () => {
+        resumeAudio();
+        applyLanguage(btn.getAttribute("data-lang"));
+        speak(t("whereGo")); // short sample in the newly chosen language
+      });
+    });
+  })();
 
   photoInput.addEventListener("change", (e) => {
     const file = e.target.files && e.target.files[0];
@@ -1351,6 +1373,7 @@
   /* ---------- Boot ---------- */
   if (save.avatar) applyAvatar(save.avatar);
   applyStaticText();   // render all static UI text in the saved language
+  syncLangControls();  // highlight the saved language flag / dropdown
   refreshHome();
   // Welcome screen is active by default via HTML.
 })();

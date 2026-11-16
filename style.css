@@ -197,6 +197,37 @@ html, body {
   box-shadow: 0 0.6vmin 0 rgba(0,0,0,0.1);
 }
 
+/* Quick language flag toggle on the welcome screen */
+.lang-flags {
+  position: absolute;
+  top: 3vmin; right: 3vmin;
+  display: flex;
+  gap: 1.5vmin;
+  z-index: 12;
+}
+.lang-flag {
+  font-size: clamp(1.6rem, 6vmin, 2.6rem);
+  line-height: 1;
+  background: #fff;
+  border: 0.5vmin solid #ddd;
+  border-radius: 50%;
+  width: 13vmin; height: 13vmin;
+  max-width: 64px; max-height: 64px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  box-shadow: 0 0.6vmin 0 rgba(0,0,0,0.1);
+  transition: transform 0.1s ease, border-color 0.1s ease;
+  padding: 0;
+}
+.lang-flag:active { transform: scale(0.9); }
+.lang-flag.selected {
+  border-color: var(--accent);
+  transform: scale(1.08);
+  box-shadow: 0 0.6vmin 0 rgba(255,107,157,0.3);
+}
+
 /* The map screen has no padding/centering — the map fills it edge to edge. */
 #screen-home {
   padding: 0;
