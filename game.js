@@ -982,7 +982,7 @@
     // tell if the kid opens something new during this round.
     const stopsBefore = allStops().filter(s => !isUnlocked(s)).map(s => s.name);
     const regionsBefore = REGIONS.filter(r => !regionUnlocked(r)).map(r => r.id);
-    current = { topic, qIndex: 0, correctCount: 0, question: null, stopsBefore, regionsBefore };
+    current = { topic, qIndex: 0, correctCount: 0, question: null, lastAnswer: null, stopsBefore, regionsBefore };
     show("screen-game");
     buildDots();
     nextQuestion();
@@ -1124,7 +1124,14 @@
       finishRound();
       return;
     }
-    const q = makeQuestion(current.topic);
+    // Generate a question, but avoid repeating the previous question's answer
+    // so the same item doesn't come up twice in a row. Re-roll a few times;
+    // give up gracefully if the pool is tiny (so we never loop forever).
+    let q = makeQuestion(current.topic);
+    for (let tries = 0; tries < 8 && q.answer === current.lastAnswer; tries++) {
+      q = makeQuestion(current.topic);
+    }
+    current.lastAnswer = q.answer;
     current.question = q;
 
     promptText.textContent = q.prompt;
