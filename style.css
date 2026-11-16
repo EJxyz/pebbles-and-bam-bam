@@ -186,6 +186,7 @@ html, body {
   align-items: center;
   justify-content: space-between;
   padding: 0 4vmin;
+  z-index: 10;   /* keep the gear/star bank above the map so taps land */
 }
 .star-bank {
   font-size: clamp(1.4rem, 5vmin, 2.2rem);
@@ -211,6 +212,7 @@ html, body {
   opacity: 0.85;
 }
 .grownups-button:active { transform: translateY(0.4vmin); }
+.grownups-button { position: relative; z-index: 11; }
 
 .modal {
   position: fixed;
