@@ -284,26 +284,93 @@
     goHome();
   });
 
+  /* ===========================================================
+     WORLD MAP — a journey of 5 locations.
+     Each stop sits at a point (x%, y%) along the drawn trail.
+     A stop unlocks once the kid has earned `needStars` total stars.
+     =========================================================== */
+  const MAP_STOPS = [
+    { topic: "counting", emoji: "🔢", name: "Counting Meadow", x: 15, y: 88, needStars: 0 },
+    { topic: "colors",   emoji: "🎨", name: "Color Garden",    x: 30, y: 56, needStars: 3 },
+    { topic: "shapes",   emoji: "⬛", name: "Shape Forest",    x: 72, y: 36, needStars: 8 },
+    { topic: "numbers",  emoji: "5️⃣", name: "Number Town",     x: 50, y: 16, needStars: 15 },
+    { topic: "animals",  emoji: "🐾", name: "Animal Zoo",      x: 85, y: 8,  needStars: 24 }
+  ];
+
+  function isUnlocked(stop) { return save.stars >= stop.needStars; }
+
+  // The avatar rides to the furthest stop the kid has unlocked.
+  function furthestUnlocked() {
+    let s = MAP_STOPS[0];
+    for (const stop of MAP_STOPS) if (isUnlocked(stop)) s = stop;
+    return s;
+  }
+
   function refreshHome() {
     document.getElementById("total-stars").textContent = save.stars;
-    document.querySelectorAll(".lvl").forEach(el => {
-      const topic = el.getAttribute("data-lvl");
-      el.textContent = save.levels[topic];
+  }
+
+  function placeMapAvatar(stop, animate) {
+    const av = document.getElementById("map-avatar");
+    if (!av) return;
+    if (!animate) av.style.transition = "none";
+    av.style.left = stop.x + "%";
+    av.style.top = stop.y + "%";
+    if (!animate) {
+      // force reflow then restore transition for future moves
+      void av.offsetWidth;
+      av.style.transition = "";
+    }
+  }
+
+  function renderMap() {
+    const stopsEl = document.getElementById("map-stops");
+    if (!stopsEl) return;
+    stopsEl.innerHTML = "";
+
+    MAP_STOPS.forEach(stop => {
+      const unlocked = isUnlocked(stop);
+      const btn = document.createElement("button");
+      btn.className = "map-stop " + (unlocked ? "unlocked" : "locked");
+      btn.style.left = stop.x + "%";
+      btn.style.top = stop.y + "%";
+
+      const bubble = '<span class="stop-bubble">' + stop.emoji + "</span>";
+      const name = '<span class="stop-name">' + stop.name + "</span>";
+      let extra;
+      if (unlocked) {
+        extra = '<span class="stop-level">Level ' + save.levels[stop.topic] + "</span>";
+      } else {
+        const need = stop.needStars - save.stars;
+        extra = '<span class="stop-lock">🔒</span>' +
+                '<span class="stop-unlock-hint">⭐ ' + need + " more</span>";
+      }
+      btn.innerHTML = bubble + name + extra;
+
+      btn.addEventListener("click", () => {
+        resumeAudio();
+        if (unlocked) {
+          placeMapAvatar(stop, true);
+          // let the avatar walk over, then open the game
+          setTimeout(() => startTopic(stop.topic), 850);
+        } else {
+          const need = stop.needStars - save.stars;
+          speak("This place is locked. Earn " + need + " more stars to visit "
+                + stop.name + "!");
+        }
+      });
+
+      stopsEl.appendChild(btn);
     });
   }
 
   function goHome() {
     refreshHome();
+    renderMap();
     show("screen-home");
-    speak("Pick a game!");
+    placeMapAvatar(furthestUnlocked(), false);
+    speak("Where do you want to go?");
   }
-
-  document.querySelectorAll(".topic-card").forEach(card => {
-    card.addEventListener("click", () => {
-      resumeAudio();
-      startTopic(card.getAttribute("data-topic"));
-    });
-  });
 
   /* ===========================================================
      GAME CONTENT
@@ -359,7 +426,10 @@
   });
 
   function startTopic(topic) {
-    current = { topic, qIndex: 0, correctCount: 0, question: null };
+    // Record which stops were locked at the start, so we can tell if the
+    // kid unlocks a new place during this round.
+    const lockedBefore = MAP_STOPS.filter(s => !isUnlocked(s)).map(s => s.topic);
+    current = { topic, qIndex: 0, correctCount: 0, question: null, lockedBefore };
     show("screen-game");
     buildDots();
     nextQuestion();
@@ -578,11 +648,18 @@
     }
     persist();
     refreshHome();
-    showCelebration(leveledUp);
+
+    // Did the stars earned this round open a brand-new place on the map?
+    const lockedBefore = current.lockedBefore || [];
+    const newlyUnlocked = MAP_STOPS.find(
+      s => lockedBefore.indexOf(s.topic) !== -1 && isUnlocked(s)
+    );
+
+    showCelebration(leveledUp, newlyUnlocked);
   }
 
   /* ---------- Celebration banner + big fireworks ---------- */
-  function showCelebration(leveledUp) {
+  function showCelebration(leveledUp, newlyUnlocked) {
     let banner = document.getElementById("celebrate-banner");
     if (!banner) {
       banner = document.createElement("div");
@@ -594,19 +671,30 @@
     const avatarInner = isPhoto
       ? ""
       : '<span class="avatar-placeholder">' + (save.avatar || "🙂") + '</span>';
-    const msg = leveledUp
-      ? "LEVEL UP! 🎉"
-      : "You did it! 🎉";
+
+    // Unlocking a new place is the most exciting thing, so it wins the banner.
+    let msg, line2 = "", voice;
+    if (newlyUnlocked) {
+      msg = "NEW PLACE! " + String.fromCodePoint(0x1F5FA);
+      line2 = ['<div class="cheer-sub">', newlyUnlocked.emoji, ' ', newlyUnlocked.name, ' is open!</div>'].join('');
+      voice = "Wow! You unlocked a new place! You can visit " + newlyUnlocked.name + " now!";
+    } else if (leveledUp) {
+      msg = "LEVEL UP! 🎉";
+      voice = "Wow! You leveled up! You are so smart!";
+    } else {
+      msg = "You did it! 🎉";
+      voice = "Hooray! You finished! Great work!";
+    }
+
     banner.innerHTML =
       '<div class="avatar-circle cheer-avatar" style="' + avatarBg + '">' + avatarInner + '</div>' +
       '<div class="cheer">' + msg + '</div>' +
+      line2 +
       '<button class="big-button go-button" id="celebrate-continue">▶️ Keep Playing</button>';
 
     banner.classList.add("show");
-    fireworksShow(leveledUp ? 6 : 3);
-    speak(leveledUp
-      ? "Wow! You leveled up! You are so smart!"
-      : "Hooray! You finished! Great work!");
+    fireworksShow(newlyUnlocked ? 8 : (leveledUp ? 6 : 3));
+    speak(voice);
 
     document.getElementById("celebrate-continue").addEventListener("click", () => {
       banner.classList.remove("show");

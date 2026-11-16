@@ -43,34 +43,21 @@
         <div class="star-bank">⭐ <span id="total-stars">0</span></div>
       </div>
 
-      <p class="subtitle">Pick a game!</p>
+      <p class="subtitle map-subtitle">Where do you want to go?</p>
 
-      <div class="topic-grid">
-        <button class="topic-card" data-topic="counting">
-          <span class="topic-emoji">🔢</span>
-          <span class="topic-name">Counting</span>
-          <span class="topic-level">Level <span class="lvl" data-lvl="counting">1</span></span>
-        </button>
-        <button class="topic-card" data-topic="colors">
-          <span class="topic-emoji">🎨</span>
-          <span class="topic-name">Colors</span>
-          <span class="topic-level">Level <span class="lvl" data-lvl="colors">1</span></span>
-        </button>
-        <button class="topic-card" data-topic="shapes">
-          <span class="topic-emoji">⬛</span>
-          <span class="topic-name">Shapes</span>
-          <span class="topic-level">Level <span class="lvl" data-lvl="shapes">1</span></span>
-        </button>
-        <button class="topic-card" data-topic="numbers">
-          <span class="topic-emoji">5️⃣</span>
-          <span class="topic-name">Numbers</span>
-          <span class="topic-level">Level <span class="lvl" data-lvl="numbers">1</span></span>
-        </button>
-        <button class="topic-card" data-topic="animals">
-          <span class="topic-emoji">🐾</span>
-          <span class="topic-name">Animals</span>
-          <span class="topic-level">Level <span class="lvl" data-lvl="animals">1</span></span>
-        </button>
+      <div id="map" class="map">
+        <!-- Winding path drawn behind the stops -->
+        <svg class="map-path" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true">
+          <path id="map-trail" d="M 15 88 C 40 80, 10 62, 30 56 S 85 50, 72 36 S 25 28, 50 16 S 90 14, 85 8"
+                fill="none" stroke="#ffd93d" stroke-width="2.4"
+                stroke-linecap="round" stroke-dasharray="0.1 5" />
+        </svg>
+        <!-- Location stops are positioned by JS -->
+        <div id="map-stops" class="map-stops"></div>
+        <!-- Avatar token that moves between stops -->
+        <div id="map-avatar" class="avatar-circle tiny map-avatar">
+          <span class="avatar-placeholder">🙂</span>
+        </div>
       </div>
     </section>
 
