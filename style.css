@@ -319,8 +319,8 @@ html, body {
   overflow: hidden;
 }
 
-/* Painted scenery layer sits behind the trail and stops. */
-.map-scenery {
+/* Illustrated SVG backdrop fills the map behind the trail and stops. */
+.map-scene {
   position: absolute;
   inset: 0;
   width: 100%;
@@ -328,13 +328,39 @@ html, body {
   pointer-events: none;
   z-index: 0;
 }
-.map-scenery .scenery {
+.map-scene .scene-svg { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
+
+/* A quick slide/fade when walking through a gate to a new region. */
+.map.map-travel .map-scene,
+.map.map-travel .map-stops,
+.map.map-travel .map-path { opacity: 0; transition: opacity 0.3s ease; }
+
+/* Region travel gates */
+.map-gates { position: absolute; inset: 0; z-index: 4; pointer-events: none; }
+.map-gate {
   position: absolute;
-  transform: translate(-50%, -50%);
-  line-height: 1;
-  filter: drop-shadow(0 2px 2px rgba(0,0,0,0.12));
-  opacity: 0.92;
+  top: 12vmin;
+  pointer-events: auto;
+  font-family: inherit;
+  background: rgba(255,255,255,0.92);
+  border: 0.5vmin solid var(--accent2);
+  border-radius: 3vmin;
+  padding: 1.4vmin 2.4vmin;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.3vmin;
+  cursor: pointer;
+  box-shadow: 0 0.8vmin 0 rgba(0,0,0,0.12);
 }
+.map-gate:active { transform: translateY(0.4vmin); }
+.gate-back { left: 3vmin; }
+.gate-next { right: 3vmin; border-color: var(--accent); }
+.gate-next.locked { border-color: #bbb; filter: grayscale(0.4); cursor: default; }
+.map-gate .gate-arch { font-size: clamp(1.4rem, 6vmin, 2.6rem); line-height: 1; }
+.map-gate .gate-label { font-size: clamp(0.8rem, 3vmin, 1.2rem); font-weight: bold; white-space: nowrap; }
+.map-gate .gate-hint { font-size: clamp(0.7rem, 2.6vmin, 1rem); color: #ff6b9d; font-weight: bold; }
+.gate-next.unlocked { animation: stopPulse 2.2s ease-in-out infinite; }
 .map-path {
   position: absolute;
   inset: 0;

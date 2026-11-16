@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
   <title>Star Friends — Learning Game</title>
-  <link rel="stylesheet" href="style.css?v=7" />
+  <link rel="stylesheet" href="style.css?v=8" />
 </head>
 <body>
   <!-- Fireworks / celebration canvas sits on top of everything -->
@@ -44,11 +44,11 @@
         <button id="grownups-button" class="grownups-button" aria-label="Grown-ups">⚙️</button>
       </div>
 
-      <p class="subtitle map-subtitle">Where do you want to go?</p>
+      <p class="subtitle map-subtitle" id="region-title">Meadow</p>
 
       <div id="map" class="map">
-        <!-- Painted scenery (trees, buildings, clouds) filled by JS -->
-        <div id="map-scenery" class="map-scenery"></div>
+        <!-- Illustrated SVG backdrop for the current region (filled by JS) -->
+        <div id="map-scene" class="map-scene"></div>
         <!-- Winding path drawn behind the stops; JS sets the 'd' to follow stops -->
         <svg class="map-path" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true">
           <path id="map-trail" fill="none" stroke="#ffe79a" stroke-width="2.6"
@@ -56,6 +56,8 @@
         </svg>
         <!-- Location stops are positioned by JS -->
         <div id="map-stops" class="map-stops"></div>
+        <!-- Gates to travel between regions (filled by JS) -->
+        <div id="map-gates" class="map-gates"></div>
         <!-- Avatar token that moves between stops -->
         <div id="map-avatar" class="avatar-circle tiny map-avatar">
           <span class="avatar-placeholder">🙂</span>
@@ -119,6 +121,6 @@
     </div>
   </div>
 
-  <script src="game.js?v=7"></script>
+  <script src="game.js?v=8"></script>
 </body>
 </html>
