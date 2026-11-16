@@ -43,6 +43,8 @@
       makeCharacter: "Let's make your character!",
       addPhoto: "📷 Add My Photo",
       photoPrivate: "🔒 Photo stays private on this device",
+      removePhoto: "🗑️ Remove Photo",
+      photoRemoved: "Photo removed!",
       orAnimal: "or pick an animal friend",
       orShape: "or pick a shape",
       letsPlay: "▶️ Let's Play!",
@@ -102,6 +104,8 @@
       makeCharacter: "¡Vamos a crear tu personaje!",
       addPhoto: "📷 Agregar mi foto",
       photoPrivate: "🔒 La foto queda privada en este dispositivo",
+      removePhoto: "🗑️ Quitar la foto",
+      photoRemoved: "¡Foto eliminada!",
       orAnimal: "o elige un amigo animal",
       orShape: "o elige una figura",
       letsPlay: "▶️ ¡A jugar!",
@@ -450,6 +454,15 @@
     save.avatar = value;
     persist();
     applyAvatar(value);
+    updateRemovePhotoButton();
+  }
+
+  // Show "Remove Photo" only when an uploaded photo is the current avatar.
+  function updateRemovePhotoButton() {
+    const btn = document.getElementById("remove-photo");
+    if (!btn) return;
+    const isPhoto = typeof save.avatar === "string" && save.avatar.indexOf("data:") === 0;
+    btn.hidden = !isPhoto;
   }
 
   // Clear the "selected" highlight on every picker (animals, shapes)
@@ -481,6 +494,19 @@
 
   buildEmojiPicker("animal-picker", AVATAR_ANIMALS, "pickedFriend");
   buildEmojiPicker("shape-picker", AVATAR_SHAPES, "pickedShape");
+
+  // Remove just the uploaded photo (keep all stars and levels).
+  (function setupRemovePhoto() {
+    const btn = document.getElementById("remove-photo");
+    if (!btn) return;
+    btn.addEventListener("click", () => {
+      resumeAudio();
+      setAvatar(null);                 // back to default face, progress untouched
+      clearPickerSelection();
+      if (photoInput) photoInput.value = ""; // allow re-picking the same file
+      speak(t("photoRemoved"));
+    });
+  })();
 
   // Quick language flags on the welcome screen.
   (function setupLangFlags() {
@@ -1337,6 +1363,7 @@
       persist();
       // Reset the avatar shown everywhere back to the default face.
       applyAvatar(null);
+      updateRemovePhotoButton();
       document.querySelectorAll(".animal-choice.selected")
         .forEach(b => b.classList.remove("selected"));
       refreshHome();
@@ -1374,6 +1401,7 @@
 
   /* ---------- Boot ---------- */
   if (save.avatar) applyAvatar(save.avatar);
+  updateRemovePhotoButton(); // show Remove Photo if a photo is already set
   applyStaticText();   // render all static UI text in the saved language
   syncLangControls();  // highlight the saved language flag / dropdown
   refreshHome();

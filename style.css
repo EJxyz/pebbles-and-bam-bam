@@ -124,6 +124,20 @@ html, body {
   color: #7a9a7a;
   max-width: 420px;
 }
+.remove-photo-button {
+  font-family: inherit;
+  font-size: clamp(0.95rem, 3.4vmin, 1.3rem);
+  font-weight: bold;
+  color: #c0392b;
+  background: #fff;
+  border: 0.4vmin solid #ffb3a7;
+  border-radius: 999px;
+  padding: 1.6vmin 4vmin;
+  cursor: pointer;
+  box-shadow: 0 0.6vmin 0 rgba(0,0,0,0.1);
+  margin-top: -0.5vmin;
+}
+.remove-photo-button:active { transform: translateY(0.4vmin); }
 .animal-picker {
   display: flex;
   flex-wrap: wrap;
