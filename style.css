@@ -378,11 +378,13 @@ html, body {
 /* The avatar token riding the map */
 .map-avatar {
   position: absolute;
-  transform: translate(-50%, -140%);
+  /* Sit clearly above the stop bubble so it never covers a stop's name. */
+  transform: translate(-50%, -190%);
   transition: left 0.8s ease, top 0.8s ease;
-  z-index: 5;
+  z-index: 6;
   border-color: var(--accent);
   box-shadow: 0 0.6vmin 0 rgba(0,0,0,0.2);
+  pointer-events: none;   /* taps go to the stop underneath, not the token */
 }
 
 /* ---------- Game ---------- */
