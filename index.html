@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>Star Friends — Learning Game</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <!-- Fireworks / celebration canvas sits on top of everything -->
+  <canvas id="fx" aria-hidden="true"></canvas>
+
+  <div id="app">
+    <!-- ============ WELCOME / AVATAR SETUP ============ -->
+    <section id="screen-welcome" class="screen active">
+      <h1 class="title">⭐ Star Friends ⭐</h1>
+      <p class="subtitle">Let's make your character!</p>
+
+      <div class="avatar-preview">
+        <div id="avatar-circle" class="avatar-circle">
+          <span class="avatar-placeholder">🙂</span>
+        </div>
+      </div>
+
+      <label class="big-button photo-button">
+        📷 Add My Photo
+        <input id="photo-input" type="file" accept="image/*" hidden />
+      </label>
+
+      <p class="or-text">or pick an animal friend</p>
+      <div id="animal-picker" class="animal-picker"></div>
+
+      <p class="or-text">or pick a shape</p>
+      <div id="shape-picker" class="animal-picker"></div>
+
+      <button id="start-button" class="big-button go-button">▶️ Let's Play!</button>
+    </section>
+
+    <!-- ============ HOME / TOPIC PICKER ============ -->
+    <section id="screen-home" class="screen">
+      <div class="home-header">
+        <div id="home-avatar" class="avatar-circle small"><span class="avatar-placeholder">🙂</span></div>
+        <div class="star-bank">⭐ <span id="total-stars">0</span></div>
+      </div>
+
+      <p class="subtitle">Pick a game!</p>
+
+      <div class="topic-grid">
+        <button class="topic-card" data-topic="counting">
+          <span class="topic-emoji">🔢</span>
+          <span class="topic-name">Counting</span>
+          <span class="topic-level">Level <span class="lvl" data-lvl="counting">1</span></span>
+        </button>
+        <button class="topic-card" data-topic="colors">
+          <span class="topic-emoji">🎨</span>
+          <span class="topic-name">Colors</span>
+          <span class="topic-level">Level <span class="lvl" data-lvl="colors">1</span></span>
+        </button>
+        <button class="topic-card" data-topic="shapes">
+          <span class="topic-emoji">⬛</span>
+          <span class="topic-name">Shapes</span>
+          <span class="topic-level">Level <span class="lvl" data-lvl="shapes">1</span></span>
+        </button>
+        <button class="topic-card" data-topic="numbers">
+          <span class="topic-emoji">5️⃣</span>
+          <span class="topic-name">Numbers</span>
+          <span class="topic-level">Level <span class="lvl" data-lvl="numbers">1</span></span>
+        </button>
+        <button class="topic-card" data-topic="animals">
+          <span class="topic-emoji">🐾</span>
+          <span class="topic-name">Animals</span>
+          <span class="topic-level">Level <span class="lvl" data-lvl="animals">1</span></span>
+        </button>
+      </div>
+    </section>
+
+    <!-- ============ GAME SCREEN ============ -->
+    <section id="screen-game" class="screen">
+      <div class="game-header">
+        <button id="back-button" class="icon-button" aria-label="Back home">🏠</button>
+        <div class="progress-dots" id="progress-dots"></div>
+        <div id="game-avatar" class="avatar-circle tiny"><span class="avatar-placeholder">🙂</span></div>
+      </div>
+
+      <button id="prompt-button" class="prompt" aria-label="Hear the question again">
+        <span id="prompt-text">Question</span>
+      </button>
+
+      <div id="choices" class="choices"></div>
+    </section>
+  </div>
+
+  <script src="game.js"></script>
+</body>
+</html>
