@@ -68,11 +68,13 @@ html, body {
 #screen-welcome .avatar-placeholder { font-size: 13vmin; }
 
 .title {
-  font-size: clamp(2.2rem, 9vmin, 4.5rem);
+  font-size: clamp(1.9rem, 7.5vmin, 3.8rem);
   margin: 0;
   color: var(--accent);
   text-shadow: 2px 3px 0 #fff, 4px 6px 0 rgba(0,0,0,0.08);
   animation: bob 2.5s ease-in-out infinite;
+  line-height: 1.1;
+  padding: 0 2vmin;
 }
 .subtitle {
   font-size: clamp(1.2rem, 4.5vmin, 2rem);

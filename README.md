@@ -1,4 +1,4 @@
-# ⭐ Star Friends
+# ⭐ Mia Bella's Star Friends
 
 A picture + audio learning game for little kids (ages 1–3, preschool to kindergarten).
 Single player, no reading required, works in any modern browser. No build step, no server.

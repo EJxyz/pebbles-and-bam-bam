@@ -1,5 +1,5 @@
 /* ===========================================================
-   Star Friends — a picture + audio learning game for ages 1–3
+   Mia Bella's Star Friends — a picture + audio learning game for ages 1–3
    Plain JavaScript, no build step. Everything stays on-device.
    =========================================================== */
 
