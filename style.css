@@ -48,8 +48,24 @@ html, body {
   padding: 4vmin;
   gap: 3vmin;
   text-align: center;
+  overflow-y: auto;            /* scroll if content is taller than the screen */
+  -webkit-overflow-scrolling: touch;
 }
 .screen.active { display: flex; }
+
+/* When a screen's content is tall (like the welcome setup), don't vertically
+   center it — start from the top so nothing is clipped above the fold. */
+#screen-welcome {
+  justify-content: flex-start;
+  gap: 2vmin;
+  padding-top: 3vmin;
+  padding-bottom: 6vmin;
+}
+#screen-welcome .avatar-circle {
+  width: 30vmin; height: 30vmin;
+  max-width: 180px; max-height: 180px;
+}
+#screen-welcome .avatar-placeholder { font-size: 13vmin; }
 
 .title {
   font-size: clamp(2.2rem, 9vmin, 4.5rem);
@@ -109,12 +125,12 @@ html, body {
 }
 .animal-choice {
   font-family: inherit;
-  font-size: clamp(2rem, 8vmin, 3.5rem);
+  font-size: clamp(1.6rem, 6vmin, 2.8rem);
   background: #fff;
   border: 0.5vmin solid #eee;
   border-radius: 50%;
-  width: 16vmin; height: 16vmin;
-  max-width: 88px; max-height: 88px;
+  width: 13vmin; height: 13vmin;
+  max-width: 68px; max-height: 68px;
   display: flex;
   align-items: center;
   justify-content: center;
