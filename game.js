@@ -6,6 +6,20 @@
 (function () {
   "use strict";
 
+  // Temporary on-screen error reporter: if any script error happens, show it
+  // so we can see why a button might not be wired up. (Will be removed later.)
+  window.addEventListener("error", function (e) {
+    let box = document.getElementById("debug-error");
+    if (!box) {
+      box = document.createElement("div");
+      box.id = "debug-error";
+      box.style.cssText = "position:fixed;left:0;right:0;bottom:0;z-index:999;" +
+        "background:#b00;color:#fff;font:14px monospace;padding:8px;white-space:pre-wrap;";
+      document.body.appendChild(box);
+    }
+    box.textContent = "JS ERROR: " + e.message + "\n@ " + e.filename + ":" + e.lineno;
+  });
+
   /* ---------- Saved progress (localStorage) ---------- */
   const SAVE_KEY = "starFriendsSave_v1";
   const save = loadSave();
