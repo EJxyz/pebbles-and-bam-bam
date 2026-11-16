@@ -42,6 +42,7 @@
     en: {
       makeCharacter: "Let's make your character!",
       addPhoto: "📷 Add My Photo",
+      photoPrivate: "🔒 Photo stays private on this device",
       orAnimal: "or pick an animal friend",
       orShape: "or pick a shape",
       letsPlay: "▶️ Let's Play!",
@@ -100,6 +101,7 @@
     es: {
       makeCharacter: "¡Vamos a crear tu personaje!",
       addPhoto: "📷 Agregar mi foto",
+      photoPrivate: "🔒 La foto queda privada en este dispositivo",
       orAnimal: "o elige un amigo animal",
       orShape: "o elige una figura",
       letsPlay: "▶️ ¡A jugar!",
