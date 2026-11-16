@@ -290,6 +290,26 @@ html, body {
 }
 .gate-error { color: #e04848; font-weight: bold; margin-top: 2vmin; }
 
+/* Settings rows (language / voice) */
+.setting-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 2vmin;
+  margin: 2vmin 0;
+}
+.setting-label { font-size: clamp(1rem, 3.6vmin, 1.4rem); font-weight: bold; }
+.setting-select {
+  font-family: inherit;
+  font-size: clamp(1rem, 3.6vmin, 1.4rem);
+  padding: 1.2vmin 2vmin;
+  border: 0.4vmin solid var(--accent2);
+  border-radius: 2vmin;
+  background: #fff;
+  cursor: pointer;
+  min-width: 42%;
+}
+
 .danger-button { background: #ff6b6b; }
 .confirm-row {
   display: flex;

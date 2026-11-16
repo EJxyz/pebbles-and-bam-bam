@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
   <title>Star Friends — Learning Game</title>
-  <link rel="stylesheet" href="style.css?v=8" />
+  <link rel="stylesheet" href="style.css?v=9" />
 </head>
 <body>
   <!-- Fireworks / celebration canvas sits on top of everything -->
@@ -14,7 +14,7 @@
     <!-- ============ WELCOME / AVATAR SETUP ============ -->
     <section id="screen-welcome" class="screen active">
       <h1 class="title">⭐ Star Friends ⭐</h1>
-      <p class="subtitle">Let's make your character!</p>
+      <p class="subtitle" data-i18n="makeCharacter">Let's make your character!</p>
 
       <div class="avatar-preview">
         <div id="avatar-circle" class="avatar-circle">
@@ -23,17 +23,17 @@
       </div>
 
       <label class="big-button photo-button">
-        📷 Add My Photo
+        <span data-i18n="addPhoto">📷 Add My Photo</span>
         <input id="photo-input" type="file" accept="image/*" hidden />
       </label>
 
-      <p class="or-text">or pick an animal friend</p>
+      <p class="or-text" data-i18n="orAnimal">or pick an animal friend</p>
       <div id="animal-picker" class="animal-picker"></div>
 
-      <p class="or-text">or pick a shape</p>
+      <p class="or-text" data-i18n="orShape">or pick a shape</p>
       <div id="shape-picker" class="animal-picker"></div>
 
-      <button id="start-button" class="big-button go-button">▶️ Let's Play!</button>
+      <button id="start-button" class="big-button go-button" data-i18n="letsPlay">▶️ Let's Play!</button>
     </section>
 
     <!-- ============ HOME / TOPIC PICKER ============ -->
@@ -88,39 +88,56 @@
 
       <!-- Step 1: simple math gate so kids can't get in -->
       <div id="grownups-gate">
-        <h2 class="modal-title">For Grown-Ups</h2>
-        <p class="modal-text">To continue, answer this:</p>
+        <h2 class="modal-title" data-i18n="forGrownups">For Grown-Ups</h2>
+        <p class="modal-text" data-i18n="gatePrompt">To continue, answer this:</p>
         <p id="gate-question" class="gate-question">3 + 4 = ?</p>
         <input id="gate-answer" class="gate-input" type="number" inputmode="numeric"
                autocomplete="off" aria-label="Answer" />
-        <button id="gate-submit" class="big-button go-button">OK</button>
-        <p id="gate-error" class="gate-error" hidden>Not quite — try again.</p>
+        <button id="gate-submit" class="big-button go-button" data-i18n="ok">OK</button>
+        <p id="gate-error" class="gate-error" data-i18n="gateWrong" hidden>Not quite — try again.</p>
       </div>
 
       <!-- Step 2: the actual controls -->
       <div id="grownups-panel" hidden>
-        <h2 class="modal-title">Grown-Up Settings</h2>
+        <h2 class="modal-title" data-i18n="settings">Grown-Up Settings</h2>
+
+        <!-- Language + voice settings -->
+        <div class="setting-row">
+          <label class="setting-label" for="lang-select" data-i18n="language">Language</label>
+          <select id="lang-select" class="setting-select">
+            <option value="en">English</option>
+            <option value="es">Español</option>
+          </select>
+        </div>
+        <div class="setting-row">
+          <label class="setting-label" for="voice-select" data-i18n="voice">Voice</label>
+          <select id="voice-select" class="setting-select">
+            <option value="female" data-i18n="female">Female</option>
+            <option value="male" data-i18n="male">Male</option>
+          </select>
+        </div>
+
         <p class="modal-text">
-          Stars: <strong id="panel-stars">0</strong>
+          <span data-i18n="starsLabel">Stars:</span> <strong id="panel-stars">0</strong>
         </p>
-        <button id="reset-button" class="big-button danger-button">🔄 Start Over</button>
-        <p class="modal-hint">
+        <button id="reset-button" class="big-button danger-button" data-i18n="startOver">🔄 Start Over</button>
+        <p class="modal-hint" data-i18n="resetHint">
           This clears all stars, levels, and the chosen character so your child
           can start fresh.
         </p>
 
         <!-- Confirm step for the reset -->
         <div id="reset-confirm" hidden>
-          <p class="modal-text"><strong>Start completely over?</strong></p>
+          <p class="modal-text"><strong data-i18n="confirmReset">Start completely over?</strong></p>
           <div class="confirm-row">
-            <button id="reset-yes" class="big-button danger-button">Yes, start over</button>
-            <button id="reset-no" class="big-button go-button">No, keep playing</button>
+            <button id="reset-yes" class="big-button danger-button" data-i18n="yesReset">Yes, start over</button>
+            <button id="reset-no" class="big-button go-button" data-i18n="noReset">No, keep playing</button>
           </div>
         </div>
       </div>
     </div>
   </div>
 
-  <script src="game.js?v=8"></script>
+  <script src="game.js?v=9"></script>
 </body>
 </html>

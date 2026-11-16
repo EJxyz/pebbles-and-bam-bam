@@ -13,7 +13,10 @@
   function loadSave() {
     try {
       const raw = localStorage.getItem(SAVE_KEY);
-      if (raw) return JSON.parse(raw);
+      if (raw) {
+        // Merge onto defaults so saves from older versions gain new fields.
+        return Object.assign(defaultSave(), JSON.parse(raw));
+      }
     } catch (e) { /* ignore */ }
     return defaultSave();
   }
@@ -22,11 +25,167 @@
       avatar: null, // dataURL of the kid's photo, or an emoji, or null
       stars: 0,
       levels: { counting: 1, colors: 1, shapes: 1, numbers: 1, animals: 1 },
-      streak: { counting: 0, colors: 0, shapes: 0, numbers: 0, animals: 0 }
+      streak: { counting: 0, colors: 0, shapes: 0, numbers: 0, animals: 0 },
+      lang: "en",          // "en" or "es"
+      voiceGender: "female" // "female" or "male"
     };
   }
   function persist() {
     try { localStorage.setItem(SAVE_KEY, JSON.stringify(save)); } catch (e) {}
+  }
+
+  /* ===========================================================
+     LANGUAGE (i18n) — English + Spanish for spoken and on-screen text.
+     t(key, params) returns the string in the saved language.
+     =========================================================== */
+  const STRINGS = {
+    en: {
+      makeCharacter: "Let's make your character!",
+      addPhoto: "📷 Add My Photo",
+      orAnimal: "or pick an animal friend",
+      orShape: "or pick a shape",
+      letsPlay: "▶️ Let's Play!",
+      whereGo: "Where do you want to go?",
+      levelWord: "Level",
+      moreWord: "more",
+      greatPhoto: "What a great photo! You look amazing!",
+      pickedFriend: "Yay! That's your friend!",
+      pickedShape: "Yay! That's your shape!",
+      placeLocked: "This place is locked. Earn {n} more stars!",
+      gateLocked: "The gate to {name} is locked. Earn {n} more stars!",
+      offWeGo: "Off we go to {name}!",
+      tryAgain: "Try again! You can do it!",
+      newCharacter: "Let's make a new character!",
+      keepPlaying: "▶️ Keep Playing",
+      levelUp: "LEVEL UP! 🎉",
+      youDidIt: "You did it! 🎉",
+      newLand: "NEW LAND!",
+      newPlace: "NEW PLACE!",
+      isOpen: "{name} is open!",
+      sayLevelUp: "Wow! You leveled up! You are so smart!",
+      sayDone: "Hooray! You finished! Great work!",
+      sayNewLand: "Amazing! A whole new land is open! You can explore {name} now!",
+      sayNewPlace: "Wow! You unlocked a new place! You can visit {name} now!",
+      praise: ["Yay!", "Great job!", "You got it!", "Awesome!", "Super!", "Wonderful!", "Well done!"],
+      // questions
+      qCount: "How many do you see? Count them!",
+      qColor: "Which one is {name}?",
+      qShape: "Can you find the {name}?",
+      qNumber: "Find the number {n}!",
+      qAnimalName: "Where is the {name}?",
+      qAnimalSound: "Who says {sound}?",
+      promptFind: "Find {NAME}",
+      promptFindThe: "Find the {NAME}",
+      promptHowMany: "", // the count prompt is just the pictures
+      promptWhoSays: "Who says \"{sound}\"?",
+      // grown-ups / settings
+      forGrownups: "For Grown-Ups",
+      gatePrompt: "To continue, answer this:",
+      gateWrong: "Not quite — try again.",
+      ok: "OK",
+      settings: "Grown-Up Settings",
+      starsLabel: "Stars:",
+      language: "Language",
+      voice: "Voice",
+      english: "English",
+      spanish: "Español",
+      female: "Female",
+      male: "Male",
+      startOver: "🔄 Start Over",
+      resetHint: "This clears all stars, levels, and the chosen character so your child can start fresh.",
+      confirmReset: "Start completely over?",
+      yesReset: "Yes, start over",
+      noReset: "No, keep playing"
+    },
+    es: {
+      makeCharacter: "¡Vamos a crear tu personaje!",
+      addPhoto: "📷 Agregar mi foto",
+      orAnimal: "o elige un amigo animal",
+      orShape: "o elige una figura",
+      letsPlay: "▶️ ¡A jugar!",
+      whereGo: "¿A dónde quieres ir?",
+      levelWord: "Nivel",
+      moreWord: "más",
+      greatPhoto: "¡Qué linda foto! ¡Te ves genial!",
+      pickedFriend: "¡Bien! ¡Ese es tu amigo!",
+      pickedShape: "¡Bien! ¡Esa es tu figura!",
+      placeLocked: "Este lugar está cerrado. ¡Gana {n} estrellas más!",
+      gateLocked: "La puerta a {name} está cerrada. ¡Gana {n} estrellas más!",
+      offWeGo: "¡Vamos a {name}!",
+      tryAgain: "¡Inténtalo otra vez! ¡Tú puedes!",
+      newCharacter: "¡Vamos a crear un nuevo personaje!",
+      keepPlaying: "▶️ Seguir jugando",
+      levelUp: "¡SUBISTE DE NIVEL! 🎉",
+      youDidIt: "¡Lo lograste! 🎉",
+      newLand: "¡NUEVA TIERRA!",
+      newPlace: "¡NUEVO LUGAR!",
+      isOpen: "¡{name} está abierto!",
+      sayLevelUp: "¡Guau! ¡Subiste de nivel! ¡Eres muy inteligente!",
+      sayDone: "¡Hurra! ¡Terminaste! ¡Buen trabajo!",
+      sayNewLand: "¡Increíble! ¡Hay una nueva tierra! ¡Ahora puedes explorar {name}!",
+      sayNewPlace: "¡Guau! ¡Abriste un nuevo lugar! ¡Ahora puedes visitar {name}!",
+      praise: ["¡Sí!", "¡Muy bien!", "¡Lo lograste!", "¡Genial!", "¡Súper!", "¡Maravilloso!", "¡Bien hecho!"],
+      qCount: "¿Cuántos ves? ¡Cuéntalos!",
+      qColor: "¿Cuál es {name}?",
+      qShape: "¿Puedes encontrar el {name}?",
+      qNumber: "¡Encuentra el número {n}!",
+      qAnimalName: "¿Dónde está el {name}?",
+      qAnimalSound: "¿Quién dice {sound}?",
+      promptFind: "Encuentra {NAME}",
+      promptFindThe: "Encuentra el {NAME}",
+      promptHowMany: "",
+      promptWhoSays: "¿Quién dice \"{sound}\"?",
+      forGrownups: "Para adultos",
+      gatePrompt: "Para continuar, responde esto:",
+      gateWrong: "Casi — inténtalo otra vez.",
+      ok: "OK",
+      settings: "Ajustes para adultos",
+      starsLabel: "Estrellas:",
+      language: "Idioma",
+      voice: "Voz",
+      english: "English",
+      spanish: "Español",
+      female: "Femenina",
+      male: "Masculina",
+      startOver: "🔄 Empezar de nuevo",
+      resetHint: "Esto borra todas las estrellas, los niveles y el personaje para que tu hijo empiece de nuevo.",
+      confirmReset: "¿Empezar completamente de nuevo?",
+      yesReset: "Sí, empezar de nuevo",
+      noReset: "No, seguir jugando"
+    }
+  };
+
+  function t(key, params) {
+    const lang = save.lang || "en";
+    let s = (STRINGS[lang] && STRINGS[lang][key]);
+    if (s === undefined) s = STRINGS.en[key];
+    if (s === undefined) return key;
+    if (params && typeof s === "string") {
+      Object.keys(params).forEach(k => {
+        s = s.replace(new RegExp("\\{" + k + "\\}", "g"), params[k]);
+      });
+    }
+    return s;
+  }
+
+  // Fill every element carrying a data-i18n key with the current language text.
+  function applyStaticText() {
+    document.querySelectorAll("[data-i18n]").forEach(el => {
+      const key = el.getAttribute("data-i18n");
+      el.textContent = t(key);
+    });
+    document.documentElement.lang = (save.lang === "es") ? "es" : "en";
+  }
+
+  // Switch language: persist, update all static text, and re-render the map.
+  function applyLanguage(lang) {
+    save.lang = (lang === "es") ? "es" : "en";
+    persist();
+    applyStaticText();
+    // Re-render the map so region titles / stop names update immediately.
+    if (document.getElementById("screen-home").classList.contains("active")) {
+      renderRegion(currentRegionIndex, false);
+    }
   }
 
   /* ---------- Audio: speech + sound effects ---------- */
@@ -34,12 +193,77 @@
     ? new (window.AudioContext || window.webkitAudioContext)()
     : null;
 
+  /* ---------- Voice selection (language + gender, least robotic) ---------- */
+  let availableVoices = [];
+  function refreshVoices() {
+    if (!("speechSynthesis" in window)) return;
+    availableVoices = window.speechSynthesis.getVoices() || [];
+  }
+  if ("speechSynthesis" in window) {
+    refreshVoices();
+    // Many browsers load voices asynchronously.
+    window.speechSynthesis.onvoiceschanged = refreshVoices;
+  }
+
+  // Hints to guess a voice's gender from its name (best effort across devices).
+  const FEMALE_HINTS = ["female", "woman", "mujer", "samantha", "victoria", "karen",
+    "tessa", "fiona", "moira", "paulina", "monica", "mónica", "google español",
+    "google us english", "google uk english female", "zira", "susan", "linda", "sara",
+    "helena", "laura", "catherine", "serena", "allison", "ava", "nicky", "joana"];
+  const MALE_HINTS = ["male", "man", "hombre", "daniel", "alex", "fred", "diego",
+    "jorge", "carlos", "juan", "google uk english male", "david", "mark", "george",
+    "oliver", "arthur", "rishi", "aaron", "tom", "pablo"];
+
+  function voiceGenderGuess(v) {
+    const n = (v.name || "").toLowerCase();
+    if (FEMALE_HINTS.some(h => n.indexOf(h) !== -1)) return "female";
+    if (MALE_HINTS.some(h => n.indexOf(h) !== -1)) return "male";
+    return "unknown";
+  }
+
+  // Prefer natural/neural voices over the flat default robotic one.
+  function voiceQuality(v) {
+    const n = (v.name || "").toLowerCase();
+    let q = 0;
+    if (n.indexOf("google") !== -1) q += 3;      // Google voices sound natural
+    if (n.indexOf("natural") !== -1) q += 4;
+    if (n.indexOf("microsoft") !== -1) q += 2;
+    if (n.indexOf("premium") !== -1 || n.indexOf("enhanced") !== -1) q += 3;
+    if (v.localService === false) q += 1;        // cloud voices are usually nicer
+    return q;
+  }
+
+  function pickVoice(lang, gender) {
+    if (!availableVoices.length) refreshVoices();
+    const prefix = lang === "es" ? "es" : "en";
+    // Only voices for the chosen language.
+    let pool = availableVoices.filter(v =>
+      (v.lang || "").toLowerCase().indexOf(prefix) === 0);
+    if (!pool.length) pool = availableVoices.slice(); // fallback: any voice
+
+    // Rank: matching gender first, then natural quality.
+    const scored = pool.map(v => {
+      const g = voiceGenderGuess(v);
+      let score = voiceQuality(v);
+      if (g === gender) score += 10;          // strongly prefer requested gender
+      else if (g === "unknown") score += 2;   // neutral is okay
+      return { v, score };
+    }).sort((a, b) => b.score - a.score);
+
+    return scored.length ? scored[0].v : null;
+  }
+
   function speak(text) {
     if (!("speechSynthesis" in window)) return;
     window.speechSynthesis.cancel();
     const u = new SpeechSynthesisUtterance(text);
-    u.rate = 0.9;    // a little slower for little ears
-    u.pitch = 1.3;   // friendly, higher voice
+    const lang = save.lang || "en";
+    u.lang = lang === "es" ? "es-ES" : "en-US";
+    const v = pickVoice(lang, save.voiceGender || "female");
+    if (v) u.voice = v;
+    // Warmer, less robotic settings: near-natural rate, gentle lift in pitch.
+    u.rate = 0.95;
+    u.pitch = (save.voiceGender === "male") ? 1.0 : 1.15;
     u.volume = 1;
     window.speechSynthesis.speak(u);
   }
@@ -222,8 +446,9 @@
       .forEach(b => b.classList.remove("selected"));
   }
 
-  // Build a picker row of emoji choices on the welcome screen
-  function buildEmojiPicker(containerId, emojis, praise) {
+  // Build a picker row of emoji choices on the welcome screen.
+  // praiseKey is an i18n key resolved at click time (so it respects language).
+  function buildEmojiPicker(containerId, emojis, praiseKey) {
     const picker = document.getElementById(containerId);
     if (!picker) return;
     emojis.forEach(emoji => {
@@ -236,14 +461,14 @@
         clearPickerSelection();   // only one avatar at a time, across all rows
         btn.classList.add("selected");
         setAvatar(emoji);
-        speak(praise);
+        speak(t(praiseKey));
       });
       picker.appendChild(btn);
     });
   }
 
-  buildEmojiPicker("animal-picker", AVATAR_ANIMALS, "Yay! That's your friend!");
-  buildEmojiPicker("shape-picker", AVATAR_SHAPES, "Yay! That's your shape!");
+  buildEmojiPicker("animal-picker", AVATAR_ANIMALS, "pickedFriend");
+  buildEmojiPicker("shape-picker", AVATAR_SHAPES, "pickedShape");
 
   photoInput.addEventListener("change", (e) => {
     const file = e.target.files && e.target.files[0];
@@ -264,7 +489,7 @@
         setAvatar(dataUrl);
         // Clear any selected animal or shape, since a photo now wins
         clearPickerSelection();
-        speak("What a great photo! You look amazing!");
+        speak(t("greatPhoto"));
       };
       img.src = reader.result;
     };
@@ -418,36 +643,40 @@
   const REGIONS = [
     {
       id: "meadow",
-      title: "Sunny Meadow",
+      title: "Sunny Meadow", titleEs: "Pradera Soleada",
       gateStars: 0,            // stars needed to ENTER this region
       stops: [
-        { topic: "counting", emoji: "🔢", name: "Counting Meadow", x: 22, y: 78, needStars: 0 },
-        { topic: "colors",   emoji: "🎨", name: "Color Garden",    x: 52, y: 60, needStars: 3 },
-        { topic: "shapes",   emoji: "🔷", name: "Shape Hills",     x: 78, y: 44, needStars: 8 }
+        { topic: "counting", emoji: "🔢", name: "Counting Meadow", nameEs: "Pradera de Contar", x: 22, y: 78, needStars: 0 },
+        { topic: "colors",   emoji: "🎨", name: "Color Garden",    nameEs: "Jardín de Colores",  x: 52, y: 60, needStars: 3 },
+        { topic: "shapes",   emoji: "🔷", name: "Shape Hills",     nameEs: "Colinas de Figuras", x: 78, y: 44, needStars: 8 }
       ]
     },
     {
       id: "jungle",
-      title: "Wild Jungle",
+      title: "Wild Jungle", titleEs: "Selva Salvaje",
       gateStars: 14,
       stops: [
-        { topic: "animals",  emoji: "🐾", name: "Jungle Trail",  x: 24, y: 76, needStars: 14 },
-        { topic: "numbers",  emoji: "5️⃣", name: "Number Vines",  x: 50, y: 58, needStars: 22 },
-        { topic: "counting", emoji: "🦜", name: "Parrot Peak",   x: 76, y: 42, needStars: 32 },
-        { topic: "colors",   emoji: "🌺", name: "Flower Falls",  x: 50, y: 26, needStars: 42 }
+        { topic: "animals",  emoji: "🐾", name: "Jungle Trail",  nameEs: "Sendero de la Selva", x: 24, y: 76, needStars: 14 },
+        { topic: "numbers",  emoji: "5️⃣", name: "Number Vines",  nameEs: "Lianas de Números",   x: 50, y: 58, needStars: 22 },
+        { topic: "counting", emoji: "🦜", name: "Parrot Peak",   nameEs: "Pico del Loro",       x: 76, y: 42, needStars: 32 },
+        { topic: "colors",   emoji: "🌺", name: "Flower Falls",  nameEs: "Cascada de Flores",   x: 50, y: 26, needStars: 42 }
       ]
     },
     {
       id: "city",
-      title: "Busy City",
+      title: "Busy City", titleEs: "Ciudad Activa",
       gateStars: 54,
       stops: [
-        { topic: "shapes",  emoji: "🟦", name: "Shape City",    x: 24, y: 74, needStars: 54 },
-        { topic: "numbers", emoji: "🚦", name: "Number Street", x: 52, y: 56, needStars: 66 },
-        { topic: "animals", emoji: "🦁", name: "City Zoo",      x: 78, y: 38, needStars: 80 }
+        { topic: "shapes",  emoji: "🟦", name: "Shape City",    nameEs: "Ciudad de Figuras", x: 24, y: 74, needStars: 54 },
+        { topic: "numbers", emoji: "🚦", name: "Number Street", nameEs: "Calle de Números",  x: 52, y: 56, needStars: 66 },
+        { topic: "animals", emoji: "🦁", name: "City Zoo",      nameEs: "Zoológico Urbano",  x: 78, y: 38, needStars: 80 }
       ]
     }
   ];
+
+  // Region title / stop name in the current language.
+  function regionTitle(r) { return (save.lang === "es" && r.titleEs) ? r.titleEs : r.title; }
+  function stopName(s) { return (save.lang === "es" && s.nameEs) ? s.nameEs : s.name; }
 
   let currentRegionIndex = 0; // which region screen the kid is viewing
 
@@ -516,7 +745,7 @@
 
     // Title + backdrop
     const titleEl = document.getElementById("region-title");
-    if (titleEl) titleEl.textContent = region.title;
+    if (titleEl) titleEl.textContent = regionTitle(region);
     const sceneEl = document.getElementById("map-scene");
     if (sceneEl) sceneEl.innerHTML = sceneSVG(region.id);
 
@@ -534,14 +763,14 @@
       btn.style.top = stop.y + "%";
 
       const bubble = '<span class="stop-bubble">' + stop.emoji + "</span>";
-      const name = '<span class="stop-name">' + stop.name + "</span>";
+      const name = '<span class="stop-name">' + stopName(stop) + "</span>";
       let extra;
       if (unlocked) {
-        extra = '<span class="stop-level">Level ' + save.levels[stop.topic] + "</span>";
+        extra = '<span class="stop-level">' + t("levelWord") + " " + save.levels[stop.topic] + "</span>";
       } else {
         const need = stop.needStars - save.stars;
         extra = '<span class="stop-lock">🔒</span>' +
-                '<span class="stop-unlock-hint">⭐ ' + need + " more</span>";
+                '<span class="stop-unlock-hint">⭐ ' + need + " " + t("moreWord") + "</span>";
       }
       btn.innerHTML = bubble + name + extra;
 
@@ -552,7 +781,7 @@
           setTimeout(() => startTopic(stop.topic), 850);
         } else {
           const need = stop.needStars - save.stars;
-          speak("This place is locked. Earn " + need + " more stars!");
+          speak(t("placeLocked", { n: need }));
         }
       });
 
@@ -581,7 +810,7 @@
       const back = document.createElement("button");
       back.className = "map-gate gate-back";
       back.innerHTML = '<span class="gate-arch">⟵🚪</span>' +
-                       '<span class="gate-label">' + prev.title + "</span>";
+                       '<span class="gate-label">' + regionTitle(prev) + "</span>";
       back.addEventListener("click", () => {
         resumeAudio();
         travelToRegion(currentRegionIndex - 1);
@@ -597,12 +826,12 @@
       fwd.className = "map-gate gate-next " + (open ? "unlocked" : "locked");
       if (open) {
         fwd.innerHTML = '<span class="gate-arch">🚪⟶</span>' +
-                        '<span class="gate-label">' + next.title + "</span>";
+                        '<span class="gate-label">' + regionTitle(next) + "</span>";
       } else {
         const need = next.gateStars - save.stars;
         fwd.innerHTML = '<span class="gate-arch">🔒</span>' +
-                        '<span class="gate-label">' + next.title + "</span>" +
-                        '<span class="gate-hint">⭐ ' + need + " more</span>";
+                        '<span class="gate-label">' + regionTitle(next) + "</span>" +
+                        '<span class="gate-hint">⭐ ' + need + " " + t("moreWord") + "</span>";
       }
       fwd.addEventListener("click", () => {
         resumeAudio();
@@ -610,7 +839,7 @@
           travelToRegion(currentRegionIndex + 1);
         } else {
           const need = next.gateStars - save.stars;
-          speak("The gate to " + next.title + " is locked. Earn " + need + " more stars!");
+          speak(t("gateLocked", { name: regionTitle(next), n: need }));
         }
       });
       gatesEl.appendChild(fwd);
@@ -620,7 +849,7 @@
   // Walk through a gate to another region with a little travel feel.
   function travelToRegion(index) {
     const region = REGIONS[index];
-    speak("Off we go to " + region.title + "!");
+    speak(t("offWeGo", { name: regionTitle(region) }));
     const map = document.getElementById("map");
     if (map) {
       map.classList.add("map-travel");
@@ -638,7 +867,7 @@
     show("screen-home");
     // Land in the region of the furthest place the kid has reached.
     renderRegion(furthestRegionIndex(), false);
-    speak("Where do you want to go?");
+    speak(t("whereGo"));
   }
 
   /* ===========================================================
@@ -646,37 +875,41 @@
      =========================================================== */
 
   const COLORS = [
-    { name: "red", hex: "#ff4d4d" },
-    { name: "blue", hex: "#4d79ff" },
-    { name: "green", hex: "#5bd75b" },
-    { name: "yellow", hex: "#ffe14d" },
-    { name: "purple", hex: "#b24dff" },
-    { name: "orange", hex: "#ff9f40" },
-    { name: "pink", hex: "#ff7fbf" },
-    { name: "brown", hex: "#a9744f" }
+    { name: "red",    es: "rojo",     hex: "#ff4d4d" },
+    { name: "blue",   es: "azul",     hex: "#4d79ff" },
+    { name: "green",  es: "verde",    hex: "#5bd75b" },
+    { name: "yellow", es: "amarillo", hex: "#ffe14d" },
+    { name: "purple", es: "morado",   hex: "#b24dff" },
+    { name: "orange", es: "naranja",  hex: "#ff9f40" },
+    { name: "pink",   es: "rosa",     hex: "#ff7fbf" },
+    { name: "brown",  es: "café",     hex: "#a9744f" }
   ];
 
   const SHAPES = [
-    { name: "circle", emoji: "⚫" },
-    { name: "square", emoji: "🟥" },
-    { name: "triangle", emoji: "🔺" },
-    { name: "star", emoji: "⭐" },
-    { name: "heart", emoji: "❤️" },
-    { name: "diamond", emoji: "🔷" }
+    { name: "circle",   es: "círculo",   emoji: "⚫" },
+    { name: "square",   es: "cuadrado",  emoji: "🟥" },
+    { name: "triangle", es: "triángulo", emoji: "🔺" },
+    { name: "star",     es: "estrella",  emoji: "⭐" },
+    { name: "heart",    es: "corazón",   emoji: "❤️" },
+    { name: "diamond",  es: "rombo",     emoji: "🔷" }
   ];
 
   const ANIMALS = [
-    { name: "dog", emoji: "🐶", sound: "woof woof" },
-    { name: "cat", emoji: "🐱", sound: "meow" },
-    { name: "cow", emoji: "🐮", sound: "moo" },
-    { name: "duck", emoji: "🦆", sound: "quack quack" },
-    { name: "frog", emoji: "🐸", sound: "ribbit" },
-    { name: "lion", emoji: "🦁", sound: "roar" },
-    { name: "pig", emoji: "🐷", sound: "oink" },
-    { name: "sheep", emoji: "🐑", sound: "baa" },
-    { name: "horse", emoji: "🐴", sound: "neigh" },
-    { name: "bee", emoji: "🐝", sound: "buzz buzz" }
+    { name: "dog",   es: "perro",   emoji: "🐶", sound: "woof woof", soundEs: "guau guau" },
+    { name: "cat",   es: "gato",    emoji: "🐱", sound: "meow",       soundEs: "miau" },
+    { name: "cow",   es: "vaca",    emoji: "🐮", sound: "moo",        soundEs: "muu" },
+    { name: "duck",  es: "pato",    emoji: "🦆", sound: "quack quack",soundEs: "cuac cuac" },
+    { name: "frog",  es: "rana",    emoji: "🐸", sound: "ribbit",     soundEs: "croac" },
+    { name: "lion",  es: "león",    emoji: "🦁", sound: "roar",       soundEs: "roar" },
+    { name: "pig",   es: "cerdo",   emoji: "🐷", sound: "oink",       soundEs: "oink" },
+    { name: "sheep", es: "oveja",   emoji: "🐑", sound: "baa",        soundEs: "beee" },
+    { name: "horse", es: "caballo", emoji: "🐴", sound: "neigh",      soundEs: "iiiih" },
+    { name: "bee",   es: "abeja",   emoji: "🐝", sound: "buzz buzz",  soundEs: "bzzz" }
   ];
+
+  // Name/sound of a content item in the current language.
+  function label(item) { return (save.lang === "es" && item.es) ? item.es : item.name; }
+  function animalSound(item) { return (save.lang === "es" && item.soundEs) ? item.soundEs : item.sound; }
 
   const COUNT_EMOJIS = ["🍎", "🎈", "⭐", "🐟", "🌸", "🍌", "🚗", "🦋"];
 
@@ -763,7 +996,7 @@
       Array.from({ length: max }, (_, i) => i + 1), 3, answer
     );
     return {
-      say: "How many do you see? Count them!",
+      say: t("qCount"),
       prompt: display,
       promptIsBig: true,
       choices: options.map(n => ({ label: String(n), value: n, cls: "text" })),
@@ -777,8 +1010,8 @@
     const set = pickDistinct(COLORS, count);
     const target = set[Math.floor(Math.random() * set.length)];
     return {
-      say: "Which one is " + target.name + "?",
-      prompt: "Find " + target.name.toUpperCase(),
+      say: t("qColor", { name: label(target) }),
+      prompt: t("promptFind", { NAME: label(target).toUpperCase() }),
       choices: set.map(c => ({
         swatch: c.hex, value: c.name, cls: "swatch"
       })),
@@ -792,8 +1025,8 @@
     const set = pickDistinct(SHAPES, count);
     const target = set[Math.floor(Math.random() * set.length)];
     return {
-      say: "Can you find the " + target.name + "?",
-      prompt: "Find the " + target.name.toUpperCase(),
+      say: t("qShape", { name: label(target) }),
+      prompt: t("promptFindThe", { NAME: label(target).toUpperCase() }),
       choices: set.map(s => ({ label: s.emoji, value: s.name, cls: "" })),
       answer: target.name,
       cols: count === 4 ? 4 : 3
@@ -807,8 +1040,8 @@
       Array.from({ length: max }, (_, i) => i + 1), 3, answer
     );
     return {
-      say: "Find the number " + answer + "!",
-      prompt: "Find " + answer,
+      say: t("qNumber", { n: answer }),
+      prompt: t("promptFind", { NAME: String(answer) }),
       choices: options.map(n => ({ label: String(n), value: n, cls: "text" })),
       answer,
       cols: 3
@@ -821,11 +1054,14 @@
     const target = set[Math.floor(Math.random() * set.length)];
     // At higher levels, ask by sound instead of name
     const bySound = level >= 2 && Math.random() < 0.5;
+    const snd = animalSound(target);
     return {
       say: bySound
-        ? "Who says " + target.sound + "?"
-        : "Where is the " + target.name + "?",
-      prompt: bySound ? "Who says \"" + target.sound + "\"?" : "Find the " + target.name.toUpperCase(),
+        ? t("qAnimalSound", { sound: snd })
+        : t("qAnimalName", { name: label(target) }),
+      prompt: bySound
+        ? t("promptWhoSays", { sound: snd })
+        : t("promptFindThe", { NAME: label(target).toUpperCase() }),
       choices: set.map(a => ({ label: a.emoji, value: a.name, cls: "" })),
       answer: target.name,
       cols: count === 4 ? 4 : 3
@@ -899,13 +1135,13 @@
     } else {
       btn.classList.add("wrong");
       playBoop();
-      speak("Try again! You can do it!");
+      speak(t("tryAgain"));
       setTimeout(() => btn.classList.remove("wrong"), 500);
     }
   }
 
   function randomPraise() {
-    const p = ["Yay!", "Great job!", "You got it!", "Awesome!", "Super!", "Wonderful!", "Well done!"];
+    const p = t("praise");
     return p[Math.floor(Math.random() * p.length)];
   }
 
@@ -934,9 +1170,9 @@
     // Prefer announcing a brand-new region; otherwise a new place.
     let unlock = null;
     if (newRegion) {
-      unlock = { kind: "region", emoji: "🗺️", name: newRegion.title };
+      unlock = { kind: "region", emoji: "🗺️", name: regionTitle(newRegion) };
     } else if (newStop) {
-      unlock = { kind: "stop", emoji: newStop.emoji, name: newStop.name };
+      unlock = { kind: "stop", emoji: newStop.emoji, name: stopName(newStop) };
     }
 
     showCelebration(leveledUp, unlock);
@@ -960,22 +1196,22 @@
     // wins the banner over a level-up.
     let msg, line2 = "", voice, bursts = 3;
     if (unlock && unlock.kind === "region") {
-      msg = "NEW LAND! " + String.fromCodePoint(0x1F5FA);
-      line2 = ['<div class="cheer-sub">', unlock.emoji, ' ', unlock.name, ' is open!</div>'].join('');
-      voice = "Amazing! A whole new land is open! You can explore " + unlock.name + " now!";
+      msg = t("newLand") + " " + String.fromCodePoint(0x1F5FA);
+      line2 = '<div class="cheer-sub">' + unlock.emoji + " " + t("isOpen", { name: unlock.name }) + "</div>";
+      voice = t("sayNewLand", { name: unlock.name });
       bursts = 9;
     } else if (unlock && unlock.kind === "stop") {
-      msg = "NEW PLACE! " + String.fromCodePoint(0x1F5FA);
-      line2 = ['<div class="cheer-sub">', unlock.emoji, ' ', unlock.name, ' is open!</div>'].join('');
-      voice = "Wow! You unlocked a new place! You can visit " + unlock.name + " now!";
+      msg = t("newPlace") + " " + String.fromCodePoint(0x1F5FA);
+      line2 = '<div class="cheer-sub">' + unlock.emoji + " " + t("isOpen", { name: unlock.name }) + "</div>";
+      voice = t("sayNewPlace", { name: unlock.name });
       bursts = 7;
     } else if (leveledUp) {
-      msg = "LEVEL UP! 🎉";
-      voice = "Wow! You leveled up! You are so smart!";
+      msg = t("levelUp");
+      voice = t("sayLevelUp");
       bursts = 6;
     } else {
-      msg = "You did it! 🎉";
-      voice = "Hooray! You finished! Great work!";
+      msg = t("youDidIt");
+      voice = t("sayDone");
       bursts = 3;
     }
 
@@ -983,7 +1219,7 @@
       '<div class="avatar-circle cheer-avatar" style="' + avatarBg + '">' + avatarInner + '</div>' +
       '<div class="cheer">' + msg + '</div>' +
       line2 +
-      '<button class="big-button go-button" id="celebrate-continue">▶️ Keep Playing</button>';
+      '<button class="big-button go-button" id="celebrate-continue">' + t("keepPlaying") + '</button>';
 
     banner.classList.add("show");
     fireworksShow(bursts);
@@ -1014,6 +1250,8 @@
     const resetConfirm = document.getElementById("reset-confirm");
     const resetYes  = document.getElementById("reset-yes");
     const resetNo   = document.getElementById("reset-no");
+    const langSelect = document.getElementById("lang-select");
+    const voiceSelect = document.getElementById("voice-select");
 
     if (!openBtn || !modal) return;
 
@@ -1052,11 +1290,19 @@
         gate.hidden = true;
         panel.hidden = false;
         panelStars.textContent = save.stars;
+        // Reflect current settings in the dropdowns.
+        if (langSelect) langSelect.value = save.lang || "en";
+        if (voiceSelect) voiceSelect.value = save.voiceGender || "female";
       } else {
         gateError.hidden = false;
         gateInput.value = "";
         newGateQuestion();
       }
+    }
+
+    // Speak a short sample so a grown-up can hear the chosen voice/language.
+    function previewVoice() {
+      speak(t("whereGo"));
     }
 
     function doReset() {
@@ -1073,7 +1319,7 @@
       closeModal();
       // Send the child back to the very start.
       show("screen-welcome");
-      speak("Let's make a new character!");
+      speak(t("newCharacter"));
     }
 
     openBtn.addEventListener("click", openModal);
@@ -1085,10 +1331,26 @@
     resetBtn.addEventListener("click", () => { resetConfirm.hidden = false; });
     resetNo.addEventListener("click", () => { resetConfirm.hidden = true; });
     resetYes.addEventListener("click", doReset);
+
+    // Language + voice settings.
+    if (langSelect) {
+      langSelect.addEventListener("change", () => {
+        applyLanguage(langSelect.value);
+        previewVoice();
+      });
+    }
+    if (voiceSelect) {
+      voiceSelect.addEventListener("change", () => {
+        save.voiceGender = voiceSelect.value === "male" ? "male" : "female";
+        persist();
+        previewVoice();
+      });
+    }
   })();
 
   /* ---------- Boot ---------- */
   if (save.avatar) applyAvatar(save.avatar);
+  applyStaticText();   // render all static UI text in the saved language
   refreshHome();
   // Welcome screen is active by default via HTML.
 })();
