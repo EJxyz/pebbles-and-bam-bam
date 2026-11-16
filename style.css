@@ -197,12 +197,13 @@ html, body {
   box-shadow: 0 0.6vmin 0 rgba(0,0,0,0.1);
 }
 
-/* Quick language flag toggle on the welcome screen */
+/* Quick language flag toggle on the welcome screen.
+   Sits in the normal flow at the top so it never overlaps the title. */
 .lang-flags {
-  position: absolute;
-  top: 3vmin; right: 3vmin;
+  align-self: flex-end;   /* top-right of the welcome column */
   display: flex;
   gap: 1.5vmin;
+  margin-bottom: 1vmin;
   z-index: 12;
 }
 .lang-flag {
