@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
   <title>Star Friends — Learning Game</title>
-  <link rel="stylesheet" href="style.css?v=6" />
+  <link rel="stylesheet" href="style.css?v=7" />
 </head>
 <body>
   <!-- Fireworks / celebration canvas sits on top of everything -->
@@ -47,11 +47,12 @@
       <p class="subtitle map-subtitle">Where do you want to go?</p>
 
       <div id="map" class="map">
-        <!-- Winding path drawn behind the stops -->
+        <!-- Painted scenery (trees, buildings, clouds) filled by JS -->
+        <div id="map-scenery" class="map-scenery"></div>
+        <!-- Winding path drawn behind the stops; JS sets the 'd' to follow stops -->
         <svg class="map-path" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true">
-          <path id="map-trail" d="M 15 88 C 40 80, 10 62, 30 56 S 85 50, 72 36 S 25 28, 50 16 S 90 14, 85 8"
-                fill="none" stroke="#ffd93d" stroke-width="2.4"
-                stroke-linecap="round" stroke-dasharray="0.1 5" />
+          <path id="map-trail" fill="none" stroke="#ffe79a" stroke-width="2.6"
+                stroke-linecap="round" stroke-dasharray="0.1 5" opacity="0.95" />
         </svg>
         <!-- Location stops are positioned by JS -->
         <div id="map-stops" class="map-stops"></div>
@@ -118,6 +119,6 @@
     </div>
   </div>
 
-  <script src="game.js?v=6"></script>
+  <script src="game.js?v=7"></script>
 </body>
 </html>

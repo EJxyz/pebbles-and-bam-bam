@@ -197,7 +197,21 @@ html, body {
   box-shadow: 0 0.6vmin 0 rgba(0,0,0,0.1);
 }
 
-.map-subtitle { margin-top: 10vmin; }
+/* The map screen has no padding/centering — the map fills it edge to edge. */
+#screen-home {
+  padding: 0;
+  justify-content: flex-start;
+  gap: 0;
+  overflow: hidden;
+}
+.map-subtitle {
+  position: absolute;
+  top: 2vmin; left: 0; right: 0;
+  z-index: 11;
+  margin: 0;
+  pointer-events: none;
+  text-shadow: 0 1px 3px rgba(255,255,255,0.8);
+}
 
 /* ---------- Grown-ups button + modal ---------- */
 .grownups-button {
@@ -288,27 +302,47 @@ html, body {
 
 /* ---------- World map ---------- */
 .map {
-  position: relative;
+  position: absolute;
+  inset: 0;
   width: 100%;
-  max-width: 760px;
-  aspect-ratio: 3 / 4;
-  max-height: 72vh;
-  margin: 1vmin auto 0;
+  height: 100%;
+  /* Three themed bands top-to-bottom:
+     City (top) -> Jungle (middle) -> Meadow (bottom). */
   background:
-    radial-gradient(circle at 70% 20%, #d7f0ff 0 18%, transparent 18%),
-    radial-gradient(circle at 20% 45%, #d7f0ff 0 14%, transparent 14%),
-    linear-gradient(180deg, #bde6c6 0%, #a8ddb4 60%, #9ad3cf 100%);
-  border-radius: 6vmin;
-  box-shadow: inset 0 0 0 0.6vmin rgba(255,255,255,0.6), 0 1vmin 0 rgba(0,0,0,0.08);
+    linear-gradient(180deg,
+      #cfe8ff 0%,      /* city sky */
+      #bcdfff 20%,
+      #9fd6a3 38%,     /* jungle canopy */
+      #7cc48a 55%,
+      #9bd6a6 72%,     /* meadow */
+      #bde6c6 100%);
   overflow: hidden;
+}
+
+/* Painted scenery layer sits behind the trail and stops. */
+.map-scenery {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 0;
+}
+.map-scenery .scenery {
+  position: absolute;
+  transform: translate(-50%, -50%);
+  line-height: 1;
+  filter: drop-shadow(0 2px 2px rgba(0,0,0,0.12));
+  opacity: 0.92;
 }
 .map-path {
   position: absolute;
   inset: 0;
   width: 100%;
   height: 100%;
+  z-index: 1;
 }
-.map-stops { position: absolute; inset: 0; }
+.map-stops { position: absolute; inset: 0; z-index: 2; }
 
 .map-stop {
   position: absolute;
@@ -316,25 +350,25 @@ html, body {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 0.6vmin;
+  gap: 0.4vmin;
   background: none;
   border: none;
   font-family: inherit;
   cursor: pointer;
-  width: 26vmin;
-  max-width: 150px;
+  width: 22vmin;
+  max-width: 120px;
 }
 .map-stop .stop-bubble {
-  width: 18vmin; height: 18vmin;
-  max-width: 100px; max-height: 100px;
+  width: 13vmin; height: 13vmin;
+  max-width: 82px; max-height: 82px;
   border-radius: 50%;
   background: #fff;
-  border: 0.7vmin solid var(--sun);
+  border: 0.6vmin solid var(--sun);
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: clamp(2rem, 9vmin, 4rem);
-  box-shadow: 0 0.8vmin 0 rgba(0,0,0,0.12);
+  font-size: clamp(1.6rem, 7vmin, 3.2rem);
+  box-shadow: 0 0.7vmin 0 rgba(0,0,0,0.12);
   transition: transform 0.12s ease;
 }
 .map-stop:active .stop-bubble { transform: scale(0.92); }

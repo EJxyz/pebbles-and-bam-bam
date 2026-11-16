@@ -302,16 +302,25 @@
   });
 
   /* ===========================================================
-     WORLD MAP — a journey of 5 locations.
-     Each stop sits at a point (x%, y%) along the drawn trail.
-     A stop unlocks once the kid has earned `needStars` total stars.
+     WORLD MAP — a journey across three regions that fills the screen.
+     Bottom = grassy Meadow, middle = Jungle, top = City.
+     Each stop sits at a point (x%, y%); it unlocks once the kid has
+     earned `needStars` total stars. The path winds upward as a journey.
      =========================================================== */
   const MAP_STOPS = [
-    { topic: "counting", emoji: "🔢", name: "Counting Meadow", x: 15, y: 88, needStars: 0 },
-    { topic: "colors",   emoji: "🎨", name: "Color Garden",    x: 30, y: 56, needStars: 3 },
-    { topic: "shapes",   emoji: "⬛", name: "Shape Forest",    x: 72, y: 36, needStars: 8 },
-    { topic: "numbers",  emoji: "5️⃣", name: "Number Town",     x: 50, y: 16, needStars: 15 },
-    { topic: "animals",  emoji: "🐾", name: "Animal Zoo",      x: 85, y: 8,  needStars: 24 }
+    // --- Meadow (bottom) ---
+    { topic: "counting", region: "meadow", emoji: "🔢", name: "Counting Meadow", x: 16, y: 92, needStars: 0 },
+    { topic: "colors",   region: "meadow", emoji: "🎨", name: "Color Garden",    x: 38, y: 80, needStars: 3 },
+    { topic: "shapes",   region: "meadow", emoji: "🔷", name: "Shape Hills",     x: 20, y: 68, needStars: 8 },
+    // --- Jungle (middle) ---
+    { topic: "animals",  region: "jungle", emoji: "🐾", name: "Jungle Trail",    x: 46, y: 58, needStars: 15 },
+    { topic: "numbers",  region: "jungle", emoji: "5️⃣", name: "Number Vines",    x: 72, y: 50, needStars: 24 },
+    { topic: "counting", region: "jungle", emoji: "🦜", name: "Parrot Peak",     x: 50, y: 40, needStars: 34 },
+    { topic: "colors",   region: "jungle", emoji: "🌺", name: "Flower Falls",    x: 24, y: 34, needStars: 45 },
+    // --- City (top) ---
+    { topic: "shapes",   region: "city",   emoji: "🏙️", name: "Shape City",      x: 50, y: 24, needStars: 58 },
+    { topic: "numbers",  region: "city",   emoji: "🚦", name: "Number Street",   x: 76, y: 16, needStars: 72 },
+    { topic: "animals",  region: "city",   emoji: "🏛️", name: "City Zoo",        x: 50, y: 7,  needStars: 88 }
   ];
 
   function isUnlocked(stop) { return save.stars >= stop.needStars; }
@@ -340,9 +349,50 @@
     }
   }
 
+  // Draw the winding trail so it threads through every stop in order.
+  function drawTrail() {
+    const path = document.getElementById("map-trail");
+    if (!path) return;
+    let d = "M " + MAP_STOPS[0].x + " " + MAP_STOPS[0].y;
+    for (let i = 1; i < MAP_STOPS.length; i++) {
+      const prev = MAP_STOPS[i - 1];
+      const cur = MAP_STOPS[i];
+      // A smooth curve: control point sits between the two stops, nudged sideways.
+      const midY = (prev.y + cur.y) / 2;
+      const bend = (i % 2 === 0) ? -12 : 12;
+      const cx = (prev.x + cur.x) / 2 + bend;
+      d += " Q " + cx + " " + midY + " " + cur.x + " " + cur.y;
+    }
+    path.setAttribute("d", d);
+  }
+
+  // Paint simple scenery per region so the map feels like a real world.
+  function buildScenery() {
+    const el = document.getElementById("map-scenery");
+    if (!el) return;
+    // Decorative emoji scattered across the three bands. Each: emoji, x%, y%, size(vmin).
+    const SCENERY = [
+      // City band (top, y ~0-30)
+      ["☁️", 12, 6, 7], ["☁️", 85, 10, 8], ["🏢", 14, 20, 9], ["🏬", 88, 22, 9],
+      ["🏢", 30, 12, 7], ["🏙️", 66, 26, 8],
+      // Jungle band (middle, y ~30-62)
+      ["🌴", 10, 44, 10], ["🌴", 90, 40, 10], ["🌿", 34, 62, 7], ["🌳", 86, 60, 9],
+      ["🍃", 60, 34, 6], ["🐒", 14, 56, 6], ["🦜", 82, 50, 6],
+      // Meadow band (bottom, y ~62-100)
+      ["🌳", 70, 72, 10], ["🌲", 8, 80, 9], ["🌼", 56, 92, 6], ["🌷", 30, 96, 6],
+      ["🍄", 84, 90, 6], ["🦋", 62, 66, 5]
+    ];
+    el.innerHTML = SCENERY.map(function (s) {
+      return '<span class="scenery" style="left:' + s[1] + '%;top:' + s[2] +
+             '%;font-size:' + s[3] + 'vmin">' + s[0] + '</span>';
+    }).join('');
+  }
+
   function renderMap() {
     const stopsEl = document.getElementById("map-stops");
     if (!stopsEl) return;
+    buildScenery();
+    drawTrail();
     stopsEl.innerHTML = "";
 
     MAP_STOPS.forEach(stop => {
