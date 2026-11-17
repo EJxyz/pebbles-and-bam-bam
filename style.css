@@ -57,11 +57,11 @@ html, body {
    center it — start from the top so nothing is clipped above the fold. */
 #screen-welcome {
   justify-content: flex-start;
-  gap: 2vmin;
-  padding-top: 3vmin;
+  gap: 1.2vmin;               /* tighter spacing for a more compact layout */
+  padding-top: 2vmin;
   /* Leave room at the bottom so scrolled content isn't hidden behind the
      always-visible Start button that sticks to the bottom. */
-  padding-bottom: 20vmin;
+  padding-bottom: 16vmin;
   position: relative;
   /* Day sky (default). The .night class swaps to a dark sky below. */
   background: linear-gradient(180deg, #8fd3ff 0%, #c6ecff 45%, #eafaff 100%);
@@ -76,14 +76,29 @@ html, body {
 #screen-welcome > #start-button {
   position: sticky;
   bottom: 2vmin;
-  margin-top: 2vmin;
+  margin-top: 1.5vmin;
   z-index: 13;
 }
+
+/* ----- Compact scale for the welcome screen ----- */
+#screen-welcome .title { font-size: clamp(1.5rem, 5.5vmin, 2.8rem); }
+#screen-welcome .subtitle { font-size: clamp(1rem, 3.5vmin, 1.5rem); }
 #screen-welcome .avatar-circle {
-  width: 30vmin; height: 30vmin;
-  max-width: 180px; max-height: 180px;
+  width: 22vmin; height: 22vmin;
+  max-width: 130px; max-height: 130px;
 }
-#screen-welcome .avatar-placeholder { font-size: 13vmin; }
+#screen-welcome .avatar-placeholder { font-size: 10vmin; }
+#screen-welcome .big-button {
+  font-size: clamp(1.05rem, 3.8vmin, 1.6rem);
+  padding: 2vmin 5vmin;
+}
+#screen-welcome .or-text { font-size: clamp(0.85rem, 3vmin, 1.1rem); }
+#screen-welcome .animal-choice {
+  width: 11vmin; height: 11vmin;
+  max-width: 56px; max-height: 56px;
+  font-size: clamp(1.3rem, 5vmin, 2.2rem);
+}
+#screen-welcome .animal-picker { gap: 1.4vmin; }
 
 /* ---------- Day / night sky ---------- */
 .sky { position: absolute; inset: 0; overflow: hidden; z-index: 0; pointer-events: none; }
@@ -126,7 +141,7 @@ html, body {
 
 /* Avatar glows like the SUN in day */
 #screen-welcome .avatar-preview .avatar-circle {
-  box-shadow: 0 0 6vmin 2vmin rgba(255, 213, 77, 0.65), 0 1vmin 0 rgba(0,0,0,0.1);
+  box-shadow: 0 0 4.5vmin 1.5vmin rgba(255, 213, 77, 0.65), 0 0.8vmin 0 rgba(0,0,0,0.1);
   transition: box-shadow 0.8s ease, border-color 0.8s ease;
 }
 
@@ -138,7 +153,7 @@ html, body {
 #screen-welcome.night .sky-clouds { opacity: 0.25; }
 /* Avatar glows like the MOON at night (cool white-blue) */
 #screen-welcome.night .avatar-preview .avatar-circle {
-  box-shadow: 0 0 6vmin 2vmin rgba(210, 225, 255, 0.55), 0 1vmin 0 rgba(0,0,0,0.3);
+  box-shadow: 0 0 4.5vmin 1.5vmin rgba(210, 225, 255, 0.55), 0 0.8vmin 0 rgba(0,0,0,0.3);
   border-color: #e7eeff;
 }
 /* Keep text readable against the dark sky */
