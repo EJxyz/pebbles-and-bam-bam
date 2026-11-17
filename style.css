@@ -57,8 +57,8 @@ html, body {
    center it — start from the top so nothing is clipped above the fold. */
 #screen-welcome {
   justify-content: flex-start;
-  gap: 1.2vmin;               /* tighter spacing for a more compact layout */
-  padding-top: 2vmin;
+  gap: 1vmin;                 /* tighter spacing for a more compact layout */
+  padding-top: 1.5vmin;
   /* Leave room at the bottom so scrolled content isn't hidden behind the
      always-visible Start button that sticks to the bottom. */
   padding-bottom: 16vmin;
@@ -81,24 +81,24 @@ html, body {
 }
 
 /* ----- Compact scale for the welcome screen ----- */
-#screen-welcome .title { font-size: clamp(1.5rem, 5.5vmin, 2.8rem); }
-#screen-welcome .subtitle { font-size: clamp(1rem, 3.5vmin, 1.5rem); }
+#screen-welcome .title { font-size: clamp(1.35rem, 4.9vmin, 2.5rem); }
+#screen-welcome .subtitle { font-size: clamp(0.9rem, 3.1vmin, 1.35rem); }
 #screen-welcome .avatar-circle {
-  width: 22vmin; height: 22vmin;
-  max-width: 130px; max-height: 130px;
+  width: 19vmin; height: 19vmin;
+  max-width: 114px; max-height: 114px;
 }
-#screen-welcome .avatar-placeholder { font-size: 10vmin; }
+#screen-welcome .avatar-placeholder { font-size: 8.8vmin; }
 #screen-welcome .big-button {
-  font-size: clamp(1.05rem, 3.8vmin, 1.6rem);
-  padding: 2vmin 5vmin;
+  font-size: clamp(0.95rem, 3.4vmin, 1.45rem);
+  padding: 1.7vmin 4.4vmin;
 }
-#screen-welcome .or-text { font-size: clamp(0.85rem, 3vmin, 1.1rem); }
+#screen-welcome .or-text { font-size: clamp(0.78rem, 2.7vmin, 1rem); }
 #screen-welcome .animal-choice {
-  width: 11vmin; height: 11vmin;
-  max-width: 56px; max-height: 56px;
-  font-size: clamp(1.3rem, 5vmin, 2.2rem);
+  width: 9.8vmin; height: 9.8vmin;
+  max-width: 50px; max-height: 50px;
+  font-size: clamp(1.15rem, 4.4vmin, 2rem);
 }
-#screen-welcome .animal-picker { gap: 1.4vmin; }
+#screen-welcome .animal-picker { gap: 1.2vmin; }
 
 /* ---------- Day / night sky ---------- */
 .sky { position: absolute; inset: 0; overflow: hidden; z-index: 0; pointer-events: none; }
