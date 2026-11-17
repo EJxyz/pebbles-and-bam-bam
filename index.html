@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
   <title>Mia Bella's Star Friends — Learning Game</title>
-  <link rel="stylesheet" href="style.css?v=15" />
+  <link rel="stylesheet" href="style.css?v=16" />
 </head>
 <body>
   <!-- Fireworks / celebration canvas sits on top of everything -->
@@ -125,6 +125,16 @@
           </select>
         </div>
 
+        <!-- Private, device-only voice clips for praise / celebrations -->
+        <div class="voiceclips">
+          <h3 class="voiceclips-title" data-i18n="myVoiceClips">My Voice Clips</h3>
+          <p class="modal-hint" data-i18n="voiceClipsHint">
+            Record short clips in your own voice. They play at happy moments and
+            stay private on this device.
+          </p>
+          <div id="voiceclip-rows" class="voiceclip-rows"></div>
+        </div>
+
         <p class="modal-text">
           <span data-i18n="starsLabel">Stars:</span> <strong id="panel-stars">0</strong>
         </p>
@@ -146,6 +156,6 @@
     </div>
   </div>
 
-  <script src="game.js?v=15"></script>
+  <script src="game.js?v=16"></script>
 </body>
 </html>

@@ -45,6 +45,15 @@
       photoPrivate: "🔒 Photo stays private on this device",
       removePhoto: "🗑️ Remove Photo",
       photoRemoved: "Photo removed!",
+      myVoiceClips: "My Voice Clips",
+      voiceClipsHint: "Record short clips in your own voice. They play at happy moments and stay private on this device.",
+      clipCorrect: "Correct answer",
+      clipDone: "Finished a round",
+      clipLevelUp: "Leveled up",
+      clipNewPlace: "New place",
+      clipAdd: "Add",
+      clipChange: "Change",
+      clipClear: "Clear",
       orAnimal: "or pick an animal friend",
       orShape: "or pick a shape",
       letsPlay: "▶️ Let's Play!",
@@ -106,6 +115,15 @@
       photoPrivate: "🔒 La foto queda privada en este dispositivo",
       removePhoto: "🗑️ Quitar la foto",
       photoRemoved: "¡Foto eliminada!",
+      myVoiceClips: "Mis grabaciones de voz",
+      voiceClipsHint: "Graba clips cortos con tu propia voz. Se reproducen en momentos felices y quedan privados en este dispositivo.",
+      clipCorrect: "Respuesta correcta",
+      clipDone: "Terminó una ronda",
+      clipLevelUp: "Subió de nivel",
+      clipNewPlace: "Nuevo lugar",
+      clipAdd: "Agregar",
+      clipChange: "Cambiar",
+      clipClear: "Quitar",
       orAnimal: "o elige un amigo animal",
       orShape: "o elige una figura",
       letsPlay: "▶️ ¡A jugar!",
@@ -351,6 +369,58 @@
 
   function resumeAudio() {
     if (audioCtx && audioCtx.state === "suspended") audioCtx.resume();
+  }
+
+  /* ===========================================================
+     PRIVATE VOICE CLIPS (device-only)
+     A parent can record short clips (praise / celebration) in a family
+     member's voice. Stored only in this browser's localStorage, never
+     uploaded. If a clip exists for a moment, it plays INSTEAD of TTS.
+     =========================================================== */
+  // The moments we support, in play-priority order per situation.
+  const CLIP_SLOTS = [
+    { id: "correct",  labelKey: "clipCorrect"  },
+    { id: "done",     labelKey: "clipDone"     },
+    { id: "levelup",  labelKey: "clipLevelUp"  },
+    { id: "newplace", labelKey: "clipNewPlace" }
+  ];
+  const CLIPS_KEY = "starFriendsClips_v1";
+
+  // Clips live in their own storage key so they don't bloat the main save.
+  let voiceClips = loadClips();
+  function loadClips() {
+    try {
+      const raw = localStorage.getItem(CLIPS_KEY);
+      if (raw) return JSON.parse(raw);
+    } catch (e) { /* ignore */ }
+    return {}; // { correct: dataURL, done: dataURL, ... }
+  }
+  function persistClips() {
+    try { localStorage.setItem(CLIPS_KEY, JSON.stringify(voiceClips)); return true; }
+    catch (e) { return false; } // storage full, etc.
+  }
+  function hasClip(id) { return typeof voiceClips[id] === "string" && voiceClips[id].length > 0; }
+
+  // Play a recorded clip. Returns true if one existed and started playing.
+  function playClip(id) {
+    if (!hasClip(id)) return false;
+    try {
+      const a = new Audio(voiceClips[id]);
+      a.volume = 1;
+      a.play().catch(() => {});
+      return true;
+    } catch (e) { return false; }
+  }
+
+  // Speak a moment: prefer the recorded clip; fall back to TTS text.
+  // `fallbackText` is the sentence to speak if no clip is set.
+  function speakMoment(clipId, fallbackText) {
+    if (playClip(clipId)) {
+      // A clip played; cancel any pending TTS so they don't overlap.
+      window.speechSynthesis && window.speechSynthesis.cancel();
+      return;
+    }
+    if (fallbackText) speak(fallbackText);
   }
 
   /* ---------- Fireworks on the canvas ---------- */
@@ -1179,7 +1249,7 @@
       markDot(current.qIndex);
       refreshHome();
       persist();
-      speak(randomPraise());
+      speakMoment("correct", randomPraise());
       // small firework at the button
       const r = btn.getBoundingClientRect();
       burst(r.left + r.width / 2, r.top + r.height / 2);
@@ -1250,26 +1320,31 @@
       : '<span class="avatar-placeholder">' + (save.avatar || "🙂") + '</span>';
 
     // Opening a new region (or place) is the most exciting thing, so it
-    // wins the banner over a level-up.
-    let msg, line2 = "", voice, bursts = 3;
+    // wins the banner over a level-up. clipId picks which recorded clip
+    // (if any) plays for this moment; otherwise `voice` TTS is spoken.
+    let msg, line2 = "", voice, bursts = 3, clipId;
     if (unlock && unlock.kind === "region") {
       msg = t("newLand") + " " + String.fromCodePoint(0x1F5FA);
       line2 = '<div class="cheer-sub">' + unlock.emoji + " " + t("isOpen", { name: unlock.name }) + "</div>";
       voice = t("sayNewLand", { name: unlock.name });
       bursts = 9;
+      clipId = "newplace";
     } else if (unlock && unlock.kind === "stop") {
       msg = t("newPlace") + " " + String.fromCodePoint(0x1F5FA);
       line2 = '<div class="cheer-sub">' + unlock.emoji + " " + t("isOpen", { name: unlock.name }) + "</div>";
       voice = t("sayNewPlace", { name: unlock.name });
       bursts = 7;
+      clipId = "newplace";
     } else if (leveledUp) {
       msg = t("levelUp");
       voice = t("sayLevelUp");
       bursts = 6;
+      clipId = "levelup";
     } else {
       msg = t("youDidIt");
       voice = t("sayDone");
       bursts = 3;
+      clipId = "done";
     }
 
     banner.innerHTML =
@@ -1280,7 +1355,7 @@
 
     banner.classList.add("show");
     fireworksShow(bursts);
-    speak(voice);
+    speakMoment(clipId, voice);
 
     document.getElementById("celebrate-continue").addEventListener("click", () => {
       banner.classList.remove("show");
@@ -1350,6 +1425,7 @@
         // Reflect current settings in the dropdowns.
         if (langSelect) langSelect.value = save.lang || "en";
         if (voiceSelect) voiceSelect.value = save.voiceGender || "female";
+        buildVoiceClipRows();
       } else {
         gateError.hidden = false;
         gateInput.value = "";
@@ -1360,6 +1436,76 @@
     // Speak a short sample so a grown-up can hear the chosen voice/language.
     function previewVoice() {
       speak(t("whereGo"));
+    }
+
+    // Build the per-clip rows (label, status, Add/Change, play, Clear).
+    function buildVoiceClipRows() {
+      const rowsEl = document.getElementById("voiceclip-rows");
+      if (!rowsEl) return;
+      rowsEl.innerHTML = "";
+
+      CLIP_SLOTS.forEach(slot => {
+        const have = hasClip(slot.id);
+        const row = document.createElement("div");
+        row.className = "voiceclip-row";
+
+        const name = document.createElement("span");
+        name.className = "voiceclip-name";
+        name.textContent = (have ? "✓ " : "") + t(slot.labelKey);
+
+        // Hidden file input for this slot (audio only).
+        const input = document.createElement("input");
+        input.type = "file";
+        input.accept = "audio/*";
+        input.hidden = true;
+        input.addEventListener("change", (e) => {
+          const file = e.target.files && e.target.files[0];
+          if (!file) return;
+          const reader = new FileReader();
+          reader.onload = () => {
+            voiceClips[slot.id] = reader.result; // data URL, device-only
+            if (!persistClips()) {
+              // Storage likely full — drop it and tell nothing breaks.
+              delete voiceClips[slot.id];
+              alert("That clip is too big to save on this device. Try a shorter recording.");
+            }
+            buildVoiceClipRows();
+            playClip(slot.id); // preview it right away
+          };
+          reader.readAsDataURL(file);
+        });
+
+        const addBtn = document.createElement("button");
+        addBtn.className = "voiceclip-btn";
+        addBtn.textContent = have ? t("clipChange") : t("clipAdd");
+        addBtn.addEventListener("click", () => { resumeAudio(); input.click(); });
+
+        const actions = document.createElement("span");
+        actions.className = "voiceclip-actions";
+        actions.appendChild(addBtn);
+
+        if (have) {
+          const playBtn = document.createElement("button");
+          playBtn.className = "voiceclip-btn play";
+          playBtn.textContent = "▶️";
+          playBtn.addEventListener("click", () => { resumeAudio(); playClip(slot.id); });
+          const clearBtn = document.createElement("button");
+          clearBtn.className = "voiceclip-btn clear";
+          clearBtn.textContent = t("clipClear");
+          clearBtn.addEventListener("click", () => {
+            delete voiceClips[slot.id];
+            persistClips();
+            buildVoiceClipRows();
+          });
+          actions.appendChild(playBtn);
+          actions.appendChild(clearBtn);
+        }
+
+        row.appendChild(name);
+        row.appendChild(actions);
+        row.appendChild(input);
+        rowsEl.appendChild(row);
+      });
     }
 
     function doReset() {

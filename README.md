@@ -35,6 +35,11 @@ Everything stays on the device. An uploaded photo is shrunk and saved only in th
 browser's local storage — it is never sent to any server. Progress (stars and levels)
 is also saved locally.
 
+Optional **voice clips** work the same way: a grown-up can record short clips
+(for correct answers, finishing a round, leveling up, and new places) in the
+grown-ups area. They are stored only in this browser and never uploaded; if a
+clip is set, it plays instead of the built-in voice at that moment.
+
 ## Files
 
 - `index.html` — screens and layout

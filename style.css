@@ -364,6 +364,41 @@ html, body {
   min-width: 42%;
 }
 
+/* Private voice-clip section in the grown-ups panel */
+.voiceclips {
+  margin: 2.5vmin 0;
+  padding-top: 2vmin;
+  border-top: 0.3vmin solid #eee;
+}
+.voiceclips-title {
+  font-size: clamp(1.1rem, 4vmin, 1.6rem);
+  color: var(--accent2);
+  margin: 0 0 1vmin;
+}
+.voiceclip-rows { display: flex; flex-direction: column; gap: 1.4vmin; margin-top: 1.5vmin; }
+.voiceclip-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1.5vmin;
+}
+.voiceclip-name { font-size: clamp(0.9rem, 3.2vmin, 1.2rem); font-weight: bold; text-align: left; }
+.voiceclip-actions { display: flex; gap: 1vmin; flex-shrink: 0; }
+.voiceclip-btn {
+  font-family: inherit;
+  font-size: clamp(0.8rem, 2.8vmin, 1.05rem);
+  font-weight: bold;
+  background: var(--accent2);
+  color: #fff;
+  border: none;
+  border-radius: 999px;
+  padding: 1vmin 2.4vmin;
+  cursor: pointer;
+}
+.voiceclip-btn:active { transform: translateY(0.3vmin); }
+.voiceclip-btn.play { background: var(--sun); color: var(--ink); padding: 1vmin 1.8vmin; }
+.voiceclip-btn.clear { background: #fff; color: #c0392b; border: 0.3vmin solid #ffb3a7; }
+
 .danger-button { background: #ff6b6b; }
 .confirm-row {
   display: flex;
