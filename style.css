@@ -59,7 +59,9 @@ html, body {
   justify-content: flex-start;
   gap: 2vmin;
   padding-top: 3vmin;
-  padding-bottom: 14vmin;   /* extra room so the Start button is never clipped */
+  /* Leave room at the bottom so scrolled content isn't hidden behind the
+     always-visible Start button that sticks to the bottom. */
+  padding-bottom: 20vmin;
   position: relative;
   /* Day sky (default). The .night class swaps to a dark sky below. */
   background: linear-gradient(180deg, #8fd3ff 0%, #c6ecff 45%, #eafaff 100%);
@@ -68,8 +70,15 @@ html, body {
 /* The sky is fixed to the viewport so it never affects the scroll height of
    the welcome content (which was pushing the Start button out of reach). */
 #screen-welcome .sky { position: fixed; }
-/* Make the Start button big and unmissable. */
-#screen-welcome > #start-button { margin-top: 2vmin; }
+
+/* Keep "Let's Play!" always on screen, stuck to the bottom, so it never
+   hides below the fold no matter how tall the window or content is. */
+#screen-welcome > #start-button {
+  position: sticky;
+  bottom: 2vmin;
+  margin-top: 2vmin;
+  z-index: 13;
+}
 #screen-welcome .avatar-circle {
   width: 30vmin; height: 30vmin;
   max-width: 180px; max-height: 180px;
@@ -87,8 +96,7 @@ html, body {
 #screen-welcome > .privacy-note,
 #screen-welcome > .remove-photo-button,
 #screen-welcome > .or-text,
-#screen-welcome > .animal-picker,
-#screen-welcome > #start-button { position: relative; z-index: 1; }
+#screen-welcome > .animal-picker { position: relative; z-index: 1; }
 
 /* Stars (only visible at night) */
 .sky-stars {
