@@ -27,7 +27,8 @@
       levels: { counting: 1, colors: 1, shapes: 1, numbers: 1, animals: 1 },
       streak: { counting: 0, colors: 0, shapes: 0, numbers: 0, animals: 0 },
       lang: "en",          // "en" or "es"
-      voiceGender: "female" // "female" or "male"
+      voiceGender: "female", // "female" or "male"
+      skyMode: "auto"       // "auto" | "day" | "night"
     };
   }
   function persist() {
@@ -575,6 +576,38 @@
       clearPickerSelection();
       if (photoInput) photoInput.value = ""; // allow re-picking the same file
       speak(t("photoRemoved"));
+    });
+  })();
+
+  /* ---------- Day / night sky on the welcome screen ---------- */
+  // Resolve whether it should look like night: honor a saved override,
+  // otherwise decide from the device clock (night roughly 7pm–6am).
+  function isNightNow() {
+    const mode = save.skyMode || "auto";
+    if (mode === "day") return false;
+    if (mode === "night") return true;
+    const h = new Date().getHours();
+    return (h >= 19 || h < 6);
+  }
+
+  function applySky() {
+    const welcome = document.getElementById("screen-welcome");
+    const toggle = document.getElementById("daynight-toggle");
+    if (!welcome) return;
+    const night = isNightNow();
+    welcome.classList.toggle("night", night);
+    if (toggle) toggle.textContent = night ? "🌙" : "☀️";
+  }
+
+  (function setupDayNight() {
+    const toggle = document.getElementById("daynight-toggle");
+    if (!toggle) return;
+    toggle.addEventListener("click", () => {
+      resumeAudio();
+      // Tap flips to the opposite of what's shown now, and remembers it.
+      save.skyMode = isNightNow() ? "day" : "night";
+      persist();
+      applySky();
     });
   })();
 
@@ -1557,6 +1590,7 @@
   updateRemovePhotoButton(); // show Remove Photo if a photo is already set
   applyStaticText();   // render all static UI text in the saved language
   syncLangControls();  // highlight the saved language flag / dropdown
+  applySky();          // set day/night sky on the welcome screen
   refreshHome();
   // Welcome screen is active by default via HTML.
 })();
