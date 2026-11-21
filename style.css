@@ -739,6 +739,19 @@ html, body {
 .choice.correct { background: #d8f5d8; border-color: #6bcf7f; animation: pop 0.4s ease; }
 .choice.wrong { background: #ffe0e0; border-color: #ff8a8a; animation: shake 0.4s ease; }
 
+/* Matching board cards */
+.choices.match { gap: 2.5vmin; }
+.match-card { transition: transform 0.1s ease, background 0.2s, border-color 0.2s, opacity 0.3s; }
+.match-card.picked { background: #fff6cc; border-color: var(--sun); transform: scale(1.05); }
+.match-card.matched {
+  background: #d8f5d8;
+  border-color: #6bcf7f;
+  opacity: 0.55;
+  pointer-events: none;
+  animation: pop 0.4s ease;
+}
+.match-card.mismatch { background: #ffe0e0; border-color: #ff8a8a; animation: shake 0.4s ease; }
+
 /* Number/word choices are smaller text */
 .choice.text { font-size: clamp(1.8rem, 9vmin, 4rem); font-weight: bold; }
 /* Color swatch choices */

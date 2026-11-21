@@ -24,10 +24,11 @@
     return {
       avatar: null, // dataURL of the kid's photo, or an emoji, or null
       stars: 0,
-      levels: { counting: 1, colors: 1, shapes: 1, numbers: 1, animals: 1 },
-      streak: { counting: 0, colors: 0, shapes: 0, numbers: 0, animals: 0 },
+      levels: { counting: 1, colors: 1, shapes: 1, numbers: 1, animals: 1, matching: 1 },
+      streak: { counting: 0, colors: 0, shapes: 0, numbers: 0, animals: 0, matching: 0 },
       lang: "en",          // "en" or "es"
       voiceGender: "female", // "female" or "male"
+      voiceName: "",        // exact chosen voice name ("" = auto-pick)
       skyMode: "auto"       // "auto" | "day" | "night"
     };
   }
@@ -87,6 +88,8 @@
       qNumber: "Find the number {n}!",
       qAnimalName: "Where is the {name}?",
       qAnimalSound: "Who says {sound}?",
+      qMatch: "Find the two that are the same!",
+      promptMatch: "Match the pairs!",
       promptFind: "Find {NAME}",
       promptFindThe: "Find the {NAME}",
       promptHowMany: "", // the count prompt is just the pictures
@@ -104,6 +107,9 @@
       spanish: "Español",
       female: "Female",
       male: "Male",
+      exactVoice: "Exact voice",
+      autoVoice: "Automatic",
+      voiceTip: "Tip: on iPhone, download an \"Enhanced\" or Siri voice in Settings → Accessibility → Spoken Content → Voices for a more natural sound.",
       startOver: "🔄 Start Over",
       resetHint: "This clears all stars, levels, and the chosen character so your child can start fresh.",
       confirmReset: "Start completely over?",
@@ -156,6 +162,8 @@
       qNumber: "¡Encuentra el número {n}!",
       qAnimalName: "¿Dónde está el {name}?",
       qAnimalSound: "¿Quién dice {sound}?",
+      qMatch: "¡Encuentra los dos que son iguales!",
+      promptMatch: "¡Une las parejas!",
       promptFind: "Encuentra {NAME}",
       promptFindThe: "Encuentra el {NAME}",
       promptHowMany: "",
@@ -172,6 +180,9 @@
       spanish: "Español",
       female: "Femenina",
       male: "Masculina",
+      exactVoice: "Voz exacta",
+      autoVoice: "Automática",
+      voiceTip: "Consejo: en el iPhone, descarga una voz \"Mejorada\" o Siri en Ajustes → Accesibilidad → Contenido hablado → Voces para un sonido más natural.",
       startOver: "🔄 Empezar de nuevo",
       resetHint: "Esto borra todas las estrellas, los niveles y el personaje para que tu hijo empiece de nuevo.",
       confirmReset: "¿Empezar completamente de nuevo?",
@@ -256,27 +267,44 @@
     return "unknown";
   }
 
-  // Prefer natural/neural voices over the flat default robotic one.
+  // Prefer the most human-sounding voices over the flat default robotic one.
+  // On iOS the big winners are Siri and "Enhanced/Premium" voices.
   function voiceQuality(v) {
     const n = (v.name || "").toLowerCase();
     let q = 0;
-    if (n.indexOf("google") !== -1) q += 3;      // Google voices sound natural
-    if (n.indexOf("natural") !== -1) q += 4;
+    if (n.indexOf("siri") !== -1) q += 8;                 // iOS Siri voices are best
+    if (n.indexOf("natural") !== -1) q += 7;              // MS/Google "Natural" neural
+    if (n.indexOf("premium") !== -1) q += 6;              // iOS premium download
+    if (n.indexOf("enhanced") !== -1) q += 5;             // iOS enhanced download
+    if (n.indexOf("google") !== -1) q += 4;               // Google voices sound natural
     if (n.indexOf("microsoft") !== -1) q += 2;
-    if (n.indexOf("premium") !== -1 || n.indexOf("enhanced") !== -1) q += 3;
-    if (v.localService === false) q += 1;        // cloud voices are usually nicer
+    if (v.localService === false) q += 1;                 // cloud voices are usually nicer
+    // Known robotic/compact defaults: push them down.
+    if (n.indexOf("compact") !== -1 || n.indexOf("eloquence") !== -1) q -= 5;
+    if (n === "albert" || n === "bad news" || n === "fred" || n === "zarvox") q -= 6;
     return q;
   }
 
-  function pickVoice(lang, gender) {
+  // The list of usable voices for the current language (for the settings menu).
+  function voicesForLang(lang) {
     if (!availableVoices.length) refreshVoices();
     const prefix = lang === "es" ? "es" : "en";
-    // Only voices for the chosen language.
-    let pool = availableVoices.filter(v =>
+    const pool = availableVoices.filter(v =>
       (v.lang || "").toLowerCase().indexOf(prefix) === 0);
-    if (!pool.length) pool = availableVoices.slice(); // fallback: any voice
+    return pool.length ? pool : availableVoices.slice();
+  }
 
-    // Rank: matching gender first, then natural quality.
+  function pickVoice(lang, gender) {
+    const pool = voicesForLang(lang);
+
+    // 1) If the parent chose an exact voice and it's available, use it.
+    if (save.voiceName) {
+      const exact = pool.find(v => v.name === save.voiceName) ||
+                    availableVoices.find(v => v.name === save.voiceName);
+      if (exact) return exact;
+    }
+
+    // 2) Otherwise auto-pick: matching gender first, then most natural quality.
     const scored = pool.map(v => {
       const g = voiceGenderGuess(v);
       let score = voiceQuality(v);
@@ -295,10 +323,10 @@
     const lang = save.lang || "en";
     u.lang = lang === "es" ? "es-ES" : "en-US";
     const v = pickVoice(lang, save.voiceGender || "female");
-    if (v) u.voice = v;
+    if (v) { u.voice = v; u.lang = v.lang || u.lang; }
     // Warmer, less robotic settings: near-natural rate, gentle lift in pitch.
     u.rate = 0.95;
-    u.pitch = (save.voiceGender === "male") ? 1.0 : 1.15;
+    u.pitch = (save.voiceGender === "male") ? 1.0 : 1.12;
     u.volume = 1;
     window.speechSynthesis.speak(u);
   }
@@ -799,30 +827,33 @@
       title: "Sunny Meadow", titleEs: "Pradera Soleada",
       gateStars: 0,            // stars needed to ENTER this region
       stops: [
-        { topic: "counting", emoji: "🔢", name: "Counting Meadow", nameEs: "Pradera de Contar", x: 22, y: 78, needStars: 0 },
-        { topic: "colors",   emoji: "🎨", name: "Color Garden",    nameEs: "Jardín de Colores",  x: 52, y: 60, needStars: 3 },
-        { topic: "shapes",   emoji: "🔷", name: "Shape Hills",     nameEs: "Colinas de Figuras", x: 78, y: 44, needStars: 8 }
+        { topic: "counting", emoji: "🔢", name: "Counting Meadow", nameEs: "Pradera de Contar", x: 20, y: 80, needStars: 0 },
+        { topic: "colors",   emoji: "🎨", name: "Color Garden",    nameEs: "Jardín de Colores",  x: 48, y: 64, needStars: 3 },
+        { topic: "matching", emoji: "🧩", name: "Matching Pond",   nameEs: "Estanque de Parejas",x: 24, y: 50, needStars: 7 },
+        { topic: "shapes",   emoji: "🔷", name: "Shape Hills",     nameEs: "Colinas de Figuras", x: 76, y: 40, needStars: 11 }
       ]
     },
     {
       id: "jungle",
       title: "Wild Jungle", titleEs: "Selva Salvaje",
-      gateStars: 14,
+      gateStars: 16,
       stops: [
-        { topic: "animals",  emoji: "🐾", name: "Jungle Trail",  nameEs: "Sendero de la Selva", x: 24, y: 76, needStars: 14 },
-        { topic: "numbers",  emoji: "5️⃣", name: "Number Vines",  nameEs: "Lianas de Números",   x: 50, y: 58, needStars: 22 },
-        { topic: "counting", emoji: "🦜", name: "Parrot Peak",   nameEs: "Pico del Loro",       x: 76, y: 42, needStars: 32 },
-        { topic: "colors",   emoji: "🌺", name: "Flower Falls",  nameEs: "Cascada de Flores",   x: 50, y: 26, needStars: 42 }
+        { topic: "animals",  emoji: "🐾", name: "Jungle Trail",   nameEs: "Sendero de la Selva", x: 22, y: 78, needStars: 16 },
+        { topic: "numbers",  emoji: "5️⃣", name: "Number Vines",   nameEs: "Lianas de Números",   x: 50, y: 62, needStars: 24 },
+        { topic: "matching", emoji: "🧩", name: "Matching Vines", nameEs: "Lianas de Parejas",   x: 76, y: 48, needStars: 32 },
+        { topic: "counting", emoji: "🦜", name: "Parrot Peak",    nameEs: "Pico del Loro",       x: 46, y: 34, needStars: 40 },
+        { topic: "colors",   emoji: "🌺", name: "Flower Falls",   nameEs: "Cascada de Flores",   x: 74, y: 22, needStars: 50 }
       ]
     },
     {
       id: "city",
       title: "Busy City", titleEs: "Ciudad Activa",
-      gateStars: 54,
+      gateStars: 62,
       stops: [
-        { topic: "shapes",  emoji: "🟦", name: "Shape City",    nameEs: "Ciudad de Figuras", x: 24, y: 74, needStars: 54 },
-        { topic: "numbers", emoji: "🚦", name: "Number Street", nameEs: "Calle de Números",  x: 52, y: 56, needStars: 66 },
-        { topic: "animals", emoji: "🦁", name: "City Zoo",      nameEs: "Zoológico Urbano",  x: 78, y: 38, needStars: 80 }
+        { topic: "shapes",   emoji: "🟦", name: "Shape City",     nameEs: "Ciudad de Figuras", x: 22, y: 76, needStars: 62 },
+        { topic: "numbers",  emoji: "🚦", name: "Number Street",  nameEs: "Calle de Números",  x: 50, y: 60, needStars: 74 },
+        { topic: "matching", emoji: "🧩", name: "Matching Plaza", nameEs: "Plaza de Parejas",  x: 76, y: 46, needStars: 86 },
+        { topic: "animals",  emoji: "🦁", name: "City Zoo",       nameEs: "Zoológico Urbano",  x: 50, y: 30, needStars: 98 }
       ]
     }
   ];
@@ -1136,6 +1167,7 @@
       case "shapes":   return makeShapes(level);
       case "numbers":  return makeNumbers(level);
       case "animals":  return makeAnimals(level);
+      case "matching": return makeMatching(level);
     }
   }
 
@@ -1221,12 +1253,44 @@
     };
   }
 
+  // Matching: a grid where each picture appears twice. Tap one, then its
+  // twin, to make a pair. Pulls from animals, shapes, and colors mixed.
+  function makeMatching(level) {
+    const pairs = level >= 4 ? 4 : (level >= 2 ? 3 : 2); // 2..4 pairs
+    // Mixed pool of visual items: animal emoji, shape emoji, color swatch.
+    const pool = []
+      .concat(ANIMALS.map(a => ({ kind: "emoji", key: "a_" + a.name, label: a.emoji, say: label(a) })))
+      .concat(SHAPES.map(s => ({ kind: "emoji", key: "s_" + s.name, label: s.emoji, say: label(s) })))
+      .concat(COLORS.map(c => ({ kind: "swatch", key: "c_" + c.name, swatch: c.hex, say: label(c) })));
+    const chosen = pickDistinct(pool, pairs);
+    // Build two cards per chosen item, then shuffle the whole board.
+    let cards = [];
+    chosen.forEach(item => { cards.push(item); cards.push(item); });
+    cards = shuffle(cards.slice());
+    return {
+      isMatching: true,
+      pairs,
+      cards,
+      say: t("qMatch"),
+      prompt: t("promptMatch"),
+      cols: (pairs >= 4) ? 4 : 3
+    };
+  }
+
   /* ---------- Render a question ---------- */
   function nextQuestion() {
     if (current.qIndex >= QUESTIONS_PER_ROUND) {
       finishRound();
       return;
     }
+    // Matching boards have their own generator and render path.
+    if (current.topic === "matching") {
+      const mq = makeMatching(save.levels.matching);
+      current.question = mq;
+      renderMatching(mq);
+      return;
+    }
+
     // Generate a question, but avoid repeating the previous question's answer
     // so the same item doesn't come up twice in a row. Re-roll a few times;
     // give up gracefully if the pool is tiny (so we never loop forever).
@@ -1266,6 +1330,94 @@
     });
 
     speak(q.say);
+  }
+
+  /* ---------- Matching board (tap a pair) ---------- */
+  let matchFirst = null;   // the first card tapped, awaiting its pair
+  let matchBusy = false;   // brief lock during the compare animation
+  function renderMatching(mq) {
+    matchFirst = null;
+    matchBusy = false;
+    let matchedCount = 0;
+
+    promptText.textContent = mq.prompt;
+    promptText.style.letterSpacing = "";
+    promptText.style.fontSize = "";
+
+    choicesEl.className = "choices match cols-" + mq.cols;
+    choicesEl.innerHTML = "";
+
+    mq.cards.forEach(item => {
+      const btn = document.createElement("button");
+      btn.className = "choice match-card " + (item.kind === "swatch" ? "swatch" : "");
+      if (item.kind === "swatch") {
+        const fill = document.createElement("div");
+        fill.className = "swatch-fill";
+        fill.style.background = item.swatch;
+        btn.appendChild(fill);
+      } else {
+        btn.textContent = item.label;
+      }
+      btn.dataset.key = item.key;
+
+      btn.addEventListener("click", () => {
+        if (matchBusy || btn.classList.contains("matched") || btn === matchFirst) return;
+        resumeAudio();
+
+        if (!matchFirst) {
+          matchFirst = btn;
+          btn.classList.add("picked");
+          return;
+        }
+
+        // Second tap: compare.
+        if (matchFirst.dataset.key === btn.dataset.key) {
+          // A pair! Lock both in.
+          btn.classList.add("picked");
+          matchFirst.classList.add("matched");
+          btn.classList.add("matched");
+          matchFirst.classList.remove("picked");
+          btn.classList.remove("picked");
+          playChime();
+          const r = btn.getBoundingClientRect();
+          burst(r.left + r.width / 2, r.top + r.height / 2);
+          runFx();
+          matchFirst = null;
+          matchedCount++;
+          if (matchedCount >= mq.pairs) {
+            // Board complete — counts as one correct "question".
+            speakMoment("correct", randomPraise());
+            save.stars += 1;
+            current.correctCount += 1;
+            markDot(current.qIndex);
+            refreshHome();
+            persist();
+            matchBusy = true;
+            setTimeout(() => {
+              current.qIndex += 1;
+              nextQuestion();
+            }, 1400);
+          }
+        } else {
+          // Not a match — gentle boop, both flash and reset.
+          matchBusy = true;
+          playBoop();
+          const a = matchFirst, b = btn;
+          a.classList.add("mismatch");
+          b.classList.add("mismatch");
+          setTimeout(() => {
+            a.classList.remove("mismatch", "picked");
+            b.classList.remove("mismatch", "picked");
+            matchFirst = null;
+            matchBusy = false;
+          }, 650);
+        }
+      });
+
+      choicesEl.appendChild(btn);
+    });
+
+    speak(mq.say);
   }
 
   let locked = false;
@@ -1417,8 +1569,27 @@
     const resetNo   = document.getElementById("reset-no");
     const langSelect = document.getElementById("lang-select");
     const voiceSelect = document.getElementById("voice-select");
+    const voiceNameSelect = document.getElementById("voice-name-select");
 
     if (!openBtn || !modal) return;
+
+    // Fill the "exact voice" dropdown with the device's voices for the
+    // current language (plus an Automatic option).
+    function buildVoiceNameOptions() {
+      if (!voiceNameSelect) return;
+      refreshVoices();
+      const pool = voicesForLang(save.lang || "en")
+        .slice()
+        .sort((a, b) => voiceQuality(b) - voiceQuality(a)); // best first
+      voiceNameSelect.innerHTML = '<option value="">' + t("autoVoice") + "</option>";
+      pool.forEach(v => {
+        const opt = document.createElement("option");
+        opt.value = v.name;
+        opt.textContent = v.name;
+        voiceNameSelect.appendChild(opt);
+      });
+      voiceNameSelect.value = save.voiceName || "";
+    }
 
     let gateAnswer = 0;
 
@@ -1458,6 +1629,7 @@
         // Reflect current settings in the dropdowns.
         if (langSelect) langSelect.value = save.lang || "en";
         if (voiceSelect) voiceSelect.value = save.voiceGender || "female";
+        buildVoiceNameOptions();
         buildVoiceClipRows();
       } else {
         gateError.hidden = false;
@@ -1573,12 +1745,24 @@
     if (langSelect) {
       langSelect.addEventListener("change", () => {
         applyLanguage(langSelect.value);
+        // Language changed → refresh which exact voices are offered.
+        save.voiceName = "";           // reset exact choice when switching language
+        persist();
+        buildVoiceNameOptions();
         previewVoice();
       });
     }
     if (voiceSelect) {
       voiceSelect.addEventListener("change", () => {
         save.voiceGender = voiceSelect.value === "male" ? "male" : "female";
+        // Gender change implies auto-pick again (unless an exact voice is set).
+        persist();
+        previewVoice();
+      });
+    }
+    if (voiceNameSelect) {
+      voiceNameSelect.addEventListener("change", () => {
+        save.voiceName = voiceNameSelect.value || "";
         persist();
         previewVoice();
       });

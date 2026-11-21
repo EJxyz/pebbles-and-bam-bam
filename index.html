@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
   <title>Mia Bella's Star Friends — Learning Game</title>
-  <link rel="stylesheet" href="style.css?v=23" />
+  <link rel="stylesheet" href="style.css?v=24" />
 </head>
 <body>
   <!-- Fireworks / celebration canvas sits on top of everything -->
@@ -136,6 +136,16 @@
             <option value="male" data-i18n="male">Male</option>
           </select>
         </div>
+        <div class="setting-row">
+          <label class="setting-label" for="voice-name-select" data-i18n="exactVoice">Exact voice</label>
+          <select id="voice-name-select" class="setting-select">
+            <option value="" data-i18n="autoVoice">Automatic</option>
+          </select>
+        </div>
+        <p class="modal-hint" data-i18n="voiceTip">
+          Tip: on iPhone, download an "Enhanced" or Siri voice in
+          Settings → Accessibility → Spoken Content → Voices for a more natural sound.
+        </p>
 
         <!-- Private, device-only voice clips for praise / celebrations -->
         <div class="voiceclips">
@@ -168,6 +178,6 @@
     </div>
   </div>
 
-  <script src="game.js?v=23"></script>
+  <script src="game.js?v=24"></script>
 </body>
 </html>
