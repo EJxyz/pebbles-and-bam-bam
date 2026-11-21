@@ -1253,27 +1253,35 @@
     };
   }
 
-  // Matching: a grid where each picture appears twice. Tap one, then its
-  // twin, to make a pair. Pulls from animals, shapes, and colors mixed.
+  // Matching: ALWAYS 5 cards. Randomly either 1 pair (+3 singles) or
+  // 2 pairs (+1 single). Pulls from animals, shapes, and colors mixed.
+  // Tap a card then its twin to make a pair; singles have no match.
   function makeMatching(level) {
-    const pairs = level >= 4 ? 4 : (level >= 2 ? 3 : 2); // 2..4 pairs
+    const BOARD = 5;
+    // Early levels lean toward the easier 1-pair board; later, more 2-pair.
+    const pairs = (level >= 2 && Math.random() < 0.6) ? 2 : (Math.random() < 0.4 ? 2 : 1);
+    const singles = BOARD - pairs * 2; // 1 pair -> 3 singles, 2 pairs -> 1 single
+
     // Mixed pool of visual items: animal emoji, shape emoji, color swatch.
     const pool = []
       .concat(ANIMALS.map(a => ({ kind: "emoji", key: "a_" + a.name, label: a.emoji, say: label(a) })))
       .concat(SHAPES.map(s => ({ kind: "emoji", key: "s_" + s.name, label: s.emoji, say: label(s) })))
       .concat(COLORS.map(c => ({ kind: "swatch", key: "c_" + c.name, swatch: c.hex, say: label(c) })));
-    const chosen = pickDistinct(pool, pairs);
-    // Build two cards per chosen item, then shuffle the whole board.
+
+    // Pick enough distinct items: some become pairs, the rest are singles.
+    const chosen = pickDistinct(pool, pairs + singles);
     let cards = [];
-    chosen.forEach(item => { cards.push(item); cards.push(item); });
+    for (let i = 0; i < pairs; i++) { cards.push(chosen[i]); cards.push(chosen[i]); }
+    for (let i = pairs; i < chosen.length; i++) { cards.push(chosen[i]); } // singles
     cards = shuffle(cards.slice());
+
     return {
       isMatching: true,
-      pairs,
-      cards,
+      pairs,           // number of pairs to find to complete the board
+      cards,           // always 5 cards
       say: t("qMatch"),
       prompt: t("promptMatch"),
-      cols: (pairs >= 4) ? 4 : 3
+      cols: 3          // 5 cards lay out nicely in a 3-column grid
     };
   }
 

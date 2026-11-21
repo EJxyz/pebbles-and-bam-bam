@@ -1,10 +1,21 @@
 :root {
   --bg: #fff7e6;
-  --accent: #ff6b9d;
-  --accent2: #4ecdc4;
-  --sun: #ffd93d;
-  --ink: #2d3142;
+  --accent: #ff5c93;       /* a touch richer pink */
+  --accent-dark: #e63e78;  /* for button bottom edge */
+  --accent2: #3ec8bf;      /* teal */
+  --accent2-dark: #28a69e;
+  --sun: #ffce3a;
+  --sun-dark: #e8b113;
+  --ink: #343a52;
+  --ink-soft: #6b7194;
   --card: #ffffff;
+  /* Fonts */
+  --font-display: "Baloo 2", "Comic Sans MS", "Trebuchet MS", system-ui, sans-serif;
+  --font-body: "Nunito", "Trebuchet MS", "Segoe UI", system-ui, sans-serif;
+  /* Depth tokens for a cleaner, more "designed" feel */
+  --shadow-soft: 0 0.6vmin 1.6vmin rgba(52, 58, 82, 0.14);
+  --shadow-card: 0 1vmin 2.4vmin rgba(52, 58, 82, 0.16);
+  --radius: 4vmin;
 }
 
 * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
@@ -12,12 +23,15 @@
 html, body {
   margin: 0;
   height: 100%;
-  font-family: "Comic Sans MS", "Trebuchet MS", "Segoe UI", system-ui, sans-serif;
+  font-family: var(--font-body);
+  font-weight: 700;
   background: radial-gradient(circle at 20% 10%, #fff0f6 0%, var(--bg) 55%, #e6fffb 100%);
   color: var(--ink);
   overflow: hidden;
   touch-action: manipulation;
   user-select: none;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
 }
 
 #fx {
@@ -181,15 +195,20 @@ html, body {
 #screen-welcome.night .daynight-toggle { border-color: #cdd7ff; background: rgba(40,48,100,0.85); }
 
 .title {
+  font-family: var(--font-display);
+  font-weight: 800;
   font-size: clamp(1.9rem, 7.5vmin, 3.8rem);
   margin: 0;
   color: var(--accent);
-  text-shadow: 2px 3px 0 #fff, 4px 6px 0 rgba(0,0,0,0.08);
+  text-shadow: 0 2px 0 #fff, 0 4px 10px rgba(230, 62, 120, 0.25);
   animation: bob 2.5s ease-in-out infinite;
   line-height: 1.1;
   padding: 0 2vmin;
+  letter-spacing: 0.5px;
 }
 .subtitle {
+  font-family: var(--font-display);
+  font-weight: 600;
   font-size: clamp(1.2rem, 4.5vmin, 2rem);
   margin: 0;
   color: var(--ink);
@@ -282,24 +301,28 @@ html, body {
 
 /* ---------- Buttons ---------- */
 .big-button {
-  font-family: inherit;
+  font-family: var(--font-display);
   font-size: clamp(1.3rem, 5vmin, 2.2rem);
-  font-weight: bold;
+  font-weight: 700;
   color: #fff;
   background: var(--accent2);
   border: none;
   border-radius: 999px;
-  padding: 3vmin 7vmin;
+  padding: 2.6vmin 7vmin;
   cursor: pointer;
-  box-shadow: 0 1.2vmin 0 rgba(0,0,0,0.15);
-  transition: transform 0.08s ease;
+  /* Chunky colored bottom edge + soft drop shadow = polished candy button */
+  box-shadow: 0 0.8vmin 0 var(--accent2-dark), 0 1.4vmin 2vmin rgba(40,166,158,0.3);
+  transition: transform 0.08s ease, box-shadow 0.08s ease;
   display: inline-flex;
   align-items: center;
   gap: 1rem;
+  letter-spacing: 0.3px;
 }
-.big-button:active { transform: translateY(0.8vmin); box-shadow: 0 0.4vmin 0 rgba(0,0,0,0.15); }
-.photo-button { background: var(--sun); color: var(--ink); }
-.go-button { background: var(--accent); }
+.big-button:active { transform: translateY(0.7vmin); box-shadow: 0 0.2vmin 0 var(--accent2-dark), 0 0.5vmin 1vmin rgba(40,166,158,0.3); }
+.photo-button { background: var(--sun); color: var(--ink); box-shadow: 0 0.8vmin 0 var(--sun-dark), 0 1.4vmin 2vmin rgba(232,177,19,0.3); }
+.photo-button:active { box-shadow: 0 0.2vmin 0 var(--sun-dark), 0 0.5vmin 1vmin rgba(232,177,19,0.3); }
+.go-button { background: var(--accent); box-shadow: 0 0.8vmin 0 var(--accent-dark), 0 1.4vmin 2vmin rgba(230,62,120,0.3); }
+.go-button:active { box-shadow: 0 0.2vmin 0 var(--accent-dark), 0 0.5vmin 1vmin rgba(230,62,120,0.3); }
 
 .icon-button {
   font-size: clamp(1.6rem, 6vmin, 2.6rem);
@@ -324,12 +347,13 @@ html, body {
   z-index: 10;   /* keep the gear/star bank above the map so taps land */
 }
 .star-bank {
+  font-family: var(--font-display);
   font-size: clamp(1.4rem, 5vmin, 2.2rem);
-  font-weight: bold;
+  font-weight: 700;
   background: #fff;
   border-radius: 999px;
-  padding: 1.5vmin 4vmin;
-  box-shadow: 0 0.6vmin 0 rgba(0,0,0,0.1);
+  padding: 1.3vmin 4vmin;
+  box-shadow: var(--shadow-soft);
 }
 
 /* Quick language flag toggle on the welcome screen.
@@ -432,6 +456,8 @@ html, body {
   cursor: pointer;
 }
 .modal-title {
+  font-family: var(--font-display);
+  font-weight: 800;
   font-size: clamp(1.5rem, 6vmin, 2.4rem);
   color: var(--accent);
   margin: 0 0 2vmin;
@@ -610,24 +636,26 @@ html, body {
   width: 13vmin; height: 13vmin;
   max-width: 82px; max-height: 82px;
   border-radius: 50%;
-  background: #fff;
+  background: radial-gradient(circle at 35% 30%, #ffffff 0%, #fff6dd 100%);
   border: 0.6vmin solid var(--sun);
   display: flex;
   align-items: center;
   justify-content: center;
   font-size: clamp(1.6rem, 7vmin, 3.2rem);
-  box-shadow: 0 0.7vmin 0 rgba(0,0,0,0.12);
-  transition: transform 0.12s ease;
+  box-shadow: var(--shadow-card);
+  transition: transform 0.12s ease, box-shadow 0.12s ease;
 }
 .map-stop:active .stop-bubble { transform: scale(0.92); }
 .map-stop .stop-name {
+  font-family: var(--font-display);
   font-size: clamp(0.9rem, 3.2vmin, 1.3rem);
-  font-weight: bold;
+  font-weight: 700;
   color: var(--ink);
-  background: rgba(255,255,255,0.85);
-  padding: 0.3vmin 1.5vmin;
+  background: rgba(255,255,255,0.92);
+  padding: 0.4vmin 1.8vmin;
   border-radius: 999px;
   white-space: nowrap;
+  box-shadow: var(--shadow-soft);
 }
 .map-stop .stop-level {
   font-size: clamp(0.7rem, 2.6vmin, 1rem);
@@ -691,16 +719,16 @@ html, body {
 .dot.done { background: var(--sun); transform: scale(1.15); }
 
 .prompt {
-  font-family: inherit;
+  font-family: var(--font-display);
   font-size: clamp(1.6rem, 6vmin, 3rem);
-  font-weight: bold;
+  font-weight: 700;
   background: #fff;
-  border: 0.6vmin solid var(--accent);
+  border: 0.5vmin solid var(--accent);
   border-radius: 6vmin;
-  padding: 3vmin 6vmin;
+  padding: 2.6vmin 6vmin;
   margin-top: 8vmin;
   cursor: pointer;
-  box-shadow: 0 1vmin 0 rgba(0,0,0,0.1);
+  box-shadow: var(--shadow-card);
   display: flex;
   align-items: center;
   gap: 1.5rem;
@@ -720,22 +748,24 @@ html, body {
 .choices.cols-4 { grid-template-columns: repeat(2, 1fr); }
 
 .choice {
-  font-family: inherit;
-  background: #fff;
-  border: 0.6vmin solid #ddd;
-  border-radius: 5vmin;
+  font-family: var(--font-display);
+  font-weight: 700;
+  background: linear-gradient(180deg, #ffffff 0%, #f6f7fb 100%);
+  border: 0.5vmin solid #eceef5;
+  border-radius: var(--radius);
   padding: 4vmin 2vmin;
   font-size: clamp(2rem, 12vmin, 6rem);
   cursor: pointer;
-  box-shadow: 0 1vmin 0 rgba(0,0,0,0.08);
-  transition: transform 0.1s ease;
+  box-shadow: var(--shadow-card);
+  transition: transform 0.12s ease, box-shadow 0.12s ease, border-color 0.12s ease;
   min-height: 24vmin;
   display: flex;
   align-items: center;
   justify-content: center;
   line-height: 1.1;
 }
-.choice:active { transform: scale(0.94); }
+.choice:hover { transform: translateY(-0.4vmin); box-shadow: 0 1.6vmin 3vmin rgba(52,58,82,0.18); }
+.choice:active { transform: scale(0.95); box-shadow: var(--shadow-soft); }
 .choice.correct { background: #d8f5d8; border-color: #6bcf7f; animation: pop 0.4s ease; }
 .choice.wrong { background: #ffe0e0; border-color: #ff8a8a; animation: shake 0.4s ease; }
 
